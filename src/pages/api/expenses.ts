@@ -1,0 +1,103 @@
+import type { APIRoute } from "astro";
+import { createClient } from "@/lib/supabase";
+import { EXPENSE_CATEGORIES } from "@/types";
+import type { ExpenseCategory } from "@/types";
+
+export const prerender = false;
+
+export const GET: APIRoute = async (context) => {
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: membership } = await supabase.from("budget_members").select("budget_id").maybeSingle();
+
+  if (!membership) {
+    return Response.json({ expenses: [] });
+  }
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+
+  const { data: expenses, error } = await supabase
+    .from("expenses")
+    .select("*")
+    .gte("expense_date", startOfMonth)
+    .lte("expense_date", endOfMonth)
+    .order("expense_date", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return Response.json({ expenses });
+};
+
+export const POST: APIRoute = async (context) => {
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data: membership } = await supabase.from("budget_members").select("budget_id").maybeSingle();
+
+  if (!membership) {
+    return Response.json({ error: "No budget" }, { status: 403 });
+  }
+
+  let body: { amount?: unknown; category?: unknown; expense_date?: unknown };
+  try {
+    body = (await context.request.json()) as typeof body;
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { amount, category, expense_date } = body;
+
+  if (typeof amount !== "number" || amount <= 0) {
+    return Response.json({ error: "Invalid amount" }, { status: 400 });
+  }
+
+  if (typeof category !== "string" || !EXPENSE_CATEGORIES.includes(category as ExpenseCategory)) {
+    return Response.json({ error: "Invalid category" }, { status: 400 });
+  }
+
+  if (typeof expense_date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(expense_date)) {
+    return Response.json({ error: "Invalid date" }, { status: 400 });
+  }
+
+  const { data: expense, error } = await supabase
+    .from("expenses")
+    .insert({
+      budget_id: membership.budget_id,
+      created_by: user.id,
+      amount,
+      category: category as ExpenseCategory,
+      expense_date,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return Response.json({ expense }, { status: 201 });
+};
