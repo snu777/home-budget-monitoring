@@ -18,7 +18,11 @@ export const GET: APIRoute = async (context) => {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: membership } = await supabase.from("budget_members").select("budget_id").maybeSingle();
+  const { data: membership } = await supabase
+    .from("budget_members")
+    .select("budget_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   if (!membership) {
     return Response.json({ expenses: [] });
@@ -56,7 +60,11 @@ export const POST: APIRoute = async (context) => {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: membership } = await supabase.from("budget_members").select("budget_id").maybeSingle();
+  const { data: membership } = await supabase
+    .from("budget_members")
+    .select("budget_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   if (!membership) {
     return Response.json({ error: "No budget" }, { status: 403 });
@@ -80,6 +88,9 @@ export const POST: APIRoute = async (context) => {
   }
 
   if (typeof expense_date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(expense_date)) {
+    return Response.json({ error: "Invalid date" }, { status: 400 });
+  }
+  if (isNaN(new Date(expense_date).getTime())) {
     return Response.json({ error: "Invalid date" }, { status: 400 });
   }
 

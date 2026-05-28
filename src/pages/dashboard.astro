@@ -11,8 +11,12 @@ const errorMessage = Astro.url.searchParams.get("error");
 
 let budget: { id: string; name: string | null; invite_code: string } | null = null;
 
-if (supabase && user) {
-  const { data: membership } = await supabase.from("budget_members").select("budget_id").maybeSingle();
+if (supabase) {
+  const { data: membership } = await supabase
+    .from("budget_members")
+    .select("budget_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   if (membership) {
     const { data } = await supabase
@@ -33,7 +37,7 @@ if (supabase && user) {
           Home Budget
         </h1>
         <div class="flex items-center gap-3">
-          <span class="text-sm text-blue-100/60">{user?.email}</span>
+          <span class="text-sm text-blue-100/60">{user.email}</span>
           <form method="POST" action="/api/auth/signout">
             <button
               type="submit"
@@ -60,7 +64,9 @@ if (supabase && user) {
               <h2 class="mb-4 text-lg font-semibold">Utwórz nowy budżet</h2>
               <form method="POST" action="/api/budgets" class="space-y-4">
                 <div>
-                  <label for="budget-name" class="mb-1 block text-sm text-blue-100/70">Nazwa budżetu</label>
+                  <label for="budget-name" class="mb-1 block text-sm text-blue-100/70">
+                    Nazwa budżetu
+                  </label>
                   <input
                     id="budget-name"
                     type="text"
@@ -82,7 +88,9 @@ if (supabase && user) {
               <h2 class="mb-4 text-lg font-semibold">Dołącz do budżetu</h2>
               <form method="POST" action="/api/budgets/join" class="space-y-4">
                 <div>
-                  <label for="invite-code-input" class="mb-1 block text-sm text-blue-100/70">Kod zaproszenia</label>
+                  <label for="invite-code-input" class="mb-1 block text-sm text-blue-100/70">
+                    Kod zaproszenia
+                  </label>
                   <input
                     id="invite-code-input"
                     type="text"

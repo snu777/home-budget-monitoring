@@ -13,7 +13,7 @@ interface AddExpenseFormProps {
 }
 
 function today(): string {
-  return new Date().toISOString().split("T")[0]!;
+  return new Date().toISOString().split("T")[0];
 }
 
 function formatAmount(amount: number): string {
@@ -49,7 +49,7 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
   const [addError, setAddError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
 
@@ -112,7 +112,9 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
             required
             placeholder="0.00"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              setAmount(e.target.value);
+            }}
             className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/30 focus:ring-1 focus:ring-white/30 focus:outline-none"
           />
         </div>
@@ -123,7 +125,9 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
           <select
             id="exp-category"
             value={category}
-            onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
+            onChange={(e) => {
+              setCategory(e.target.value as ExpenseCategory);
+            }}
             className="w-full rounded-lg border border-white/20 bg-zinc-900 px-3 py-2 text-white focus:ring-1 focus:ring-white/30 focus:outline-none"
           >
             {EXPENSE_CATEGORIES.map((cat) => (
@@ -142,7 +146,9 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
             type="date"
             required
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => {
+              setDate(e.target.value);
+            }}
             className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-1 focus:ring-white/30 focus:outline-none"
           />
         </div>
@@ -211,8 +217,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
 
       <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
         <h3 className="mb-4 font-semibold">
-          Wydatki —{" "}
-          <span className="font-normal text-blue-100/60 capitalize">{monthLabel}</span>
+          Wydatki — <span className="font-normal text-blue-100/60 capitalize">{monthLabel}</span>
         </h3>
 
         {loading && expenses.length === 0 ? (
@@ -223,7 +228,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
           <div className="space-y-4">
             {[...grouped.entries()].map(([dateStr, items]) => (
               <div key={dateStr}>
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-blue-100/40">
+                <p className="mb-2 text-xs font-medium tracking-wide text-blue-100/40 uppercase">
                   {formatDate(dateStr)}
                 </p>
                 <div className="space-y-2">
@@ -241,9 +246,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
                           <span className="text-xs text-blue-100/40">{isOwn ? "Ty" : "Partner"}</span>
                           <span className="text-sm">{expense.category}</span>
                         </div>
-                        <span className="font-mono text-sm font-semibold">
-                          {formatAmount(expense.amount)}
-                        </span>
+                        <span className="font-mono text-sm font-semibold">{formatAmount(expense.amount)}</span>
                       </div>
                     );
                   })}
