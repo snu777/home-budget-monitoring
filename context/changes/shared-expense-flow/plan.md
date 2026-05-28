@@ -403,13 +403,13 @@ Polling co 5s generuje ~720 requestów/godzina na użytkownika. Przy 2 użytkown
 
 #### Automatyczne
 
-- [x] 3.1 `npm run lint` przechodzi
-- [x] 3.2 `npm run build` przechodzi
+- [x] 3.1 `npm run lint` przechodzi — 1713448
+- [x] 3.2 `npm run build` przechodzi — 1713448
 
 #### Ręczne
 
-- [x] 3.3 Dodaj wydatek → pojawia się natychmiast (optimistic)
-- [x] 3.4 Odśwież stronę → wydatek persisted
-- [x] 3.5 Polling: wydatek partnera pojawia się w < 5s bez ręcznego odświeżenia
-- [x] 3.6 Separator dat widoczny; atrybucja "Ty"/"Partner" poprawna
-- [x] 3.7 Formularz odrzuca kwotę ≤ 0 (natywna walidacja)
+- [x] 3.3 Dodaj wydatek → pojawia się natychmiast (optimistic) — 1713448
+- [x] 3.4 Odśwież stronę → wydatek persisted — 1713448
+- [x] 3.5 Polling: wydatek partnera pojawia się w < 5s bez ręcznego odświeżenia — 1713448
+- [x] 3.6 Separator dat widoczny; atrybucja "Ty"/"Partner" poprawna — 1713448
+- [x] 3.7 Formularz odrzuca kwotę ≤ 0 (natywna walidacja) — 1713448
