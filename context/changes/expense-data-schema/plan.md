@@ -375,11 +375,11 @@ SELECT invite_code FROM public.budgets;
 
 #### Automatyczne
 
-- [x] 2.1 `src/database.types.ts` istnieje i zawiera `expense_category` w Enums
-- [x] 2.2 `npm run build` kończy się kodem 0
+- [x] 2.1 `src/database.types.ts` istnieje i zawiera `expense_category` w Enums — dd17ff0
+- [x] 2.2 `npm run build` kończy się kodem 0 — dd17ff0
 
 #### Ręczne
 
-- [x] 2.3 Test RLS: anon nie ma dostępu do tabel (SQL Editor w Studio)
-- [x] 2.4 Test funkcji: `join_budget_by_invite_code('INVALID99')` rzuca `invalid_invite_code`
-- [x] 2.5 Test invite_code: dwa INSERT do `budgets` generują dwa różne kody
+- [x] 2.3 Test RLS: anon nie ma dostępu do tabel (SQL Editor w Studio) — dd17ff0
+- [x] 2.4 Test funkcji: `join_budget_by_invite_code('INVALID99')` rzuca `invalid_invite_code` — dd17ff0
+- [x] 2.5 Test invite_code: dwa INSERT do `budgets` generują dwa różne kody — dd17ff0
