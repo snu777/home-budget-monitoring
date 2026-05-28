@@ -363,23 +363,23 @@ SELECT invite_code FROM public.budgets;
 
 #### Automatyczne
 
-- [x] 1.1 `npx supabase db reset` kończy się kodem 0 bez błędów
+- [x] 1.1 `npx supabase db reset` kończy się kodem 0 bez błędów — 5a4115e
 
 #### Ręczne
 
-- [x] 1.2 Trzy tabele widoczne w Studio z włączonym RLS
-- [x] 1.3 Funkcja `join_budget_by_invite_code` widoczna w Database → Functions
-- [x] 1.4 `SELECT * FROM public.budgets` jako rola `anon` zwraca brak dostępu
+- [x] 1.2 Trzy tabele widoczne w Studio z włączonym RLS — 5a4115e
+- [x] 1.3 Funkcja `join_budget_by_invite_code` widoczna w Database → Functions — 5a4115e
+- [x] 1.4 `SELECT * FROM public.budgets` jako rola `anon` zwraca brak dostępu — 5a4115e
 
 ### Faza 2: Generowanie typów TypeScript + weryfikacja RLS
 
 #### Automatyczne
 
-- [ ] 2.1 `src/database.types.ts` istnieje i zawiera `expense_category` w Enums
-- [ ] 2.2 `npm run build` kończy się kodem 0
+- [x] 2.1 `src/database.types.ts` istnieje i zawiera `expense_category` w Enums
+- [x] 2.2 `npm run build` kończy się kodem 0
 
 #### Ręczne
 
-- [ ] 2.3 Test RLS: anon nie ma dostępu do tabel (SQL Editor w Studio)
-- [ ] 2.4 Test funkcji: `join_budget_by_invite_code('INVALID99')` rzuca `invalid_invite_code`
-- [ ] 2.5 Test invite_code: dwa INSERT do `budgets` generują dwa różne kody
+- [x] 2.3 Test RLS: anon nie ma dostępu do tabel (SQL Editor w Studio)
+- [x] 2.4 Test funkcji: `join_budget_by_invite_code('INVALID99')` rzuca `invalid_invite_code`
+- [x] 2.5 Test invite_code: dwa INSERT do `budgets` generują dwa różne kody
