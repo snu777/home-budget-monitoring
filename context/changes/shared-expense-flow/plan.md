@@ -389,27 +389,27 @@ Polling co 5s generuje ~720 requestów/godzina na użytkownika. Przy 2 użytkown
 
 #### Automatyczne
 
-- [x] 2.1 `npm run lint` przechodzi
-- [x] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npm run lint` przechodzi — bdb90f5
+- [x] 2.2 `npm run build` przechodzi — bdb90f5
 
 #### Ręczne
 
-- [x] 2.3 Nowy użytkownik widzi Stan A (formularze tworzenia i dołączania)
-- [x] 2.4 Po stworzeniu budżetu: Stan B z kodem zaproszenia
-- [x] 2.5 Zły kod zaproszenia: komunikat błędu na dashboardzie
-- [x] 2.6 Sign-out nadal działa
+- [x] 2.3 Nowy użytkownik widzi Stan A (formularze tworzenia i dołączania) — bdb90f5
+- [x] 2.4 Po stworzeniu budżetu: Stan B z kodem zaproszenia — bdb90f5
+- [x] 2.5 Zły kod zaproszenia: komunikat błędu na dashboardzie — bdb90f5
+- [x] 2.6 Sign-out nadal działa — bdb90f5
 
 ### Faza 3: React island ExpenseDashboard
 
 #### Automatyczne
 
-- [ ] 3.1 `npm run lint` przechodzi
-- [ ] 3.2 `npm run build` przechodzi
+- [x] 3.1 `npm run lint` przechodzi
+- [x] 3.2 `npm run build` przechodzi
 
 #### Ręczne
 
-- [ ] 3.3 Dodaj wydatek → pojawia się natychmiast (optimistic)
-- [ ] 3.4 Odśwież stronę → wydatek persisted
-- [ ] 3.5 Polling: wydatek partnera pojawia się w < 5s bez ręcznego odświeżenia
-- [ ] 3.6 Separator dat widoczny; atrybucja "Ty"/"Partner" poprawna
-- [ ] 3.7 Formularz odrzuca kwotę ≤ 0 (natywna walidacja)
+- [x] 3.3 Dodaj wydatek → pojawia się natychmiast (optimistic)
+- [x] 3.4 Odśwież stronę → wydatek persisted
+- [x] 3.5 Polling: wydatek partnera pojawia się w < 5s bez ręcznego odświeżenia
+- [x] 3.6 Separator dat widoczny; atrybucja "Ty"/"Partner" poprawna
+- [x] 3.7 Formularz odrzuca kwotę ≤ 0 (natywna walidacja)
