@@ -375,29 +375,29 @@ Polling co 5s generuje ~720 requestów/godzina na użytkownika. Przy 2 użytkown
 
 #### Automatyczne
 
-- [x] 1.1 `npm run lint` przechodzi bez błędów
-- [x] 1.2 `npm run build` przechodzi (brak błędów TypeScript)
+- [x] 1.1 `npm run lint` przechodzi bez błędów — e413b0e
+- [x] 1.2 `npm run build` przechodzi (brak błędów TypeScript) — e413b0e
 
 #### Ręczne
 
-- [x] 1.3 GET /api/expenses jako zalogowany bez budżetu → `{expenses:[]}`
-- [x] 1.4 POST /api/budgets tworzy budżet i przekierowuje na `/dashboard`
-- [x] 1.5 POST /api/budgets/join z złym kodem → redirect z `?error=`
-- [x] 1.6 POST /api/expenses z poprawnym payload → 201 z expense object
+- [x] 1.3 GET /api/expenses jako zalogowany bez budżetu → `{expenses:[]}` — e413b0e
+- [x] 1.4 POST /api/budgets tworzy budżet i przekierowuje na `/dashboard` — e413b0e
+- [x] 1.5 POST /api/budgets/join z złym kodem → redirect z `?error=` — e413b0e
+- [x] 1.6 POST /api/expenses z poprawnym payload → 201 z expense object — e413b0e
 
 ### Faza 2: Dashboard maszyna stanów
 
 #### Automatyczne
 
-- [ ] 2.1 `npm run lint` przechodzi
-- [ ] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npm run lint` przechodzi
+- [x] 2.2 `npm run build` przechodzi
 
 #### Ręczne
 
-- [ ] 2.3 Nowy użytkownik widzi Stan A (formularze tworzenia i dołączania)
-- [ ] 2.4 Po stworzeniu budżetu: Stan B z kodem zaproszenia
-- [ ] 2.5 Zły kod zaproszenia: komunikat błędu na dashboardzie
-- [ ] 2.6 Sign-out nadal działa
+- [x] 2.3 Nowy użytkownik widzi Stan A (formularze tworzenia i dołączania)
+- [x] 2.4 Po stworzeniu budżetu: Stan B z kodem zaproszenia
+- [x] 2.5 Zły kod zaproszenia: komunikat błędu na dashboardzie
+- [x] 2.6 Sign-out nadal działa
 
 ### Faza 3: React island ExpenseDashboard
 
