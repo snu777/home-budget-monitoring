@@ -112,3 +112,34 @@ export const POST: APIRoute = async (context) => {
 
   return Response.json({ expense }, { status: 201 });
 };
+
+export const DELETE: APIRoute = async (context) => {
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const id = context.url.searchParams.get("id");
+  if (!id) {
+    return Response.json({ error: "Missing expense id" }, { status: 400 });
+  }
+
+  const { count, error } = await supabase.from("expenses").delete({ count: "exact" }).eq("id", id);
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  if (count === 0) {
+    return Response.json({ error: "Expense not found" }, { status: 404 });
+  }
+
+  return Response.json({ success: true });
+};
