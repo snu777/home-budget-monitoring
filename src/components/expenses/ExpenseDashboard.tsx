@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
 import type { Expense, ExpenseCategory } from "@/types";
 import { EXPENSE_CATEGORIES } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Props {
   budgetId: string;
@@ -168,6 +180,7 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
 export default function ExpenseDashboard({ currentUserId }: Props) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteError, setDeleteError] = useState<{ id: string; message: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchExpenses = () => {
@@ -204,6 +217,27 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
     setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const handleDelete = (id: string) => {
+    const saved = expenses.find((e) => e.id === id);
+    if (!saved) return;
+
+    setDeleteError(null);
+    handleRemove(id);
+
+    fetch(`/api/expenses?id=${encodeURIComponent(id)}`, { method: "DELETE" })
+      .then((res) => res.json())
+      .then((data: { error?: string }) => {
+        if (data.error) {
+          setExpenses((prev) => [...prev, saved]);
+          setDeleteError({ id, message: data.error });
+        }
+      })
+      .catch(() => {
+        setExpenses((prev) => [...prev, saved]);
+        setDeleteError({ id, message: "Błąd sieci — spróbuj ponownie" });
+      });
+  };
+
   const now = new Date();
   const monthLabel = now.toLocaleDateString("pl-PL", { month: "long", year: "numeric" });
   const grouped = groupByDate(expenses);
@@ -235,18 +269,56 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
                   {items.map((expense) => {
                     const isOptimistic = expense.created_by === "optimistic";
                     const isOwn = isOptimistic || expense.created_by === currentUserId;
+                    const canDelete = isOwn && !isOptimistic;
                     return (
-                      <div
-                        key={expense.id}
-                        className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-                          isOptimistic ? "bg-white/5 opacity-60" : "bg-white/5"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-blue-100/40">{isOwn ? "Ty" : "Partner"}</span>
-                          <span className="text-sm">{expense.category}</span>
+                      <div key={expense.id}>
+                        <div
+                          className={`flex items-center justify-between rounded-lg px-3 py-2 ${
+                            isOptimistic ? "bg-white/5 opacity-60" : "bg-white/5"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-blue-100/40">{isOwn ? "Ty" : "Partner"}</span>
+                            <span className="text-sm">{expense.category}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm font-semibold">{formatAmount(expense.amount)}</span>
+                            {canDelete && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    type="button"
+                                    className="rounded p-1 text-blue-100/30 transition-colors hover:text-red-400"
+                                  >
+                                    <Trash2 className="size-4" />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent size="sm">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Usunąć wydatek?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {expense.category} — {formatAmount(expense.amount)}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      variant="destructive"
+                                      onClick={() => {
+                                        handleDelete(expense.id);
+                                      }}
+                                    >
+                                      Usuń
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
                         </div>
-                        <span className="font-mono text-sm font-semibold">{formatAmount(expense.amount)}</span>
+                        {deleteError?.id === expense.id && (
+                          <p className="mt-1 px-3 text-xs text-red-300">{deleteError.message}</p>
+                        )}
                       </div>
                     );
                   })}

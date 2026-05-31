@@ -189,28 +189,28 @@ Import: `Trash2` z `lucide-react`, komponenty AlertDialog z `@/components/ui/ale
 
 #### Automatyczne
 
-- [x] 1.1 `npm run lint` przechodzi bez błędów
-- [x] 1.2 `npm run build` przechodzi
+- [x] 1.1 `npm run lint` przechodzi bez błędów — dc65f72
+- [x] 1.2 `npm run build` przechodzi — dc65f72
 
 #### Ręczne
 
-- [x] 1.3 DELETE własnego wydatku → `{ success: true }`, wydatek usunięty z bazy
-- [x] 1.4 DELETE wydatku partnera → 404 (RLS blokuje)
-- [x] 1.5 DELETE bez id → 400
-- [x] 1.6 `src/components/ui/alert-dialog.tsx` istnieje
+- [x] 1.3 DELETE własnego wydatku → `{ success: true }`, wydatek usunięty z bazy — dc65f72
+- [x] 1.4 DELETE wydatku partnera → 404 (RLS blokuje) — dc65f72
+- [x] 1.5 DELETE bez id → 400 — dc65f72
+- [x] 1.6 `src/components/ui/alert-dialog.tsx` istnieje — dc65f72
 
 ### Faza 2: UI — przycisk, dialog, optimistic delete
 
 #### Automatyczne
 
-- [ ] 2.1 `npm run lint` przechodzi bez błędów
-- [ ] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npm run lint` przechodzi bez błędów
+- [x] 2.2 `npm run build` przechodzi
 
 #### Ręczne
 
-- [ ] 2.3 Własny wydatek: ikona kosza widoczna; partnera: brak
-- [ ] 2.4 Kliknięcie kosza → AlertDialog z kwotą i kategorią
-- [ ] 2.5 "Anuluj" → dialog zamknięty, wydatek nadal na liście
-- [ ] 2.6 "Usuń" → wydatek znika natychmiast (optimistic)
-- [ ] 2.7 Odświeżenie strony → wydatek nie wraca (persisted)
-- [ ] 2.8 Drugie okno: usunięty wydatek znika w < 5s (polling)
+- [x] 2.3 Własny wydatek: ikona kosza widoczna; partnera: brak
+- [x] 2.4 Kliknięcie kosza → AlertDialog z kwotą i kategorią
+- [x] 2.5 "Anuluj" → dialog zamknięty, wydatek nadal na liście
+- [x] 2.6 "Usuń" → wydatek znika natychmiast (optimistic)
+- [x] 2.7 Odświeżenie strony → wydatek nie wraca (persisted)
+- [x] 2.8 Drugie okno: usunięty wydatek znika w < 5s (polling)
