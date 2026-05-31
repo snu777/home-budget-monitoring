@@ -203,14 +203,14 @@ Import: `Trash2` z `lucide-react`, komponenty AlertDialog z `@/components/ui/ale
 
 #### Automatyczne
 
-- [x] 2.1 `npm run lint` przechodzi bez błędów
-- [x] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npm run lint` przechodzi bez błędów — f69295b
+- [x] 2.2 `npm run build` przechodzi — f69295b
 
 #### Ręczne
 
-- [x] 2.3 Własny wydatek: ikona kosza widoczna; partnera: brak
-- [x] 2.4 Kliknięcie kosza → AlertDialog z kwotą i kategorią
-- [x] 2.5 "Anuluj" → dialog zamknięty, wydatek nadal na liście
-- [x] 2.6 "Usuń" → wydatek znika natychmiast (optimistic)
-- [x] 2.7 Odświeżenie strony → wydatek nie wraca (persisted)
-- [x] 2.8 Drugie okno: usunięty wydatek znika w < 5s (polling)
+- [x] 2.3 Własny wydatek: ikona kosza widoczna; partnera: brak — f69295b
+- [x] 2.4 Kliknięcie kosza → AlertDialog z kwotą i kategorią — f69295b
+- [x] 2.5 "Anuluj" → dialog zamknięty, wydatek nadal na liście — f69295b
+- [x] 2.6 "Usuń" → wydatek znika natychmiast (optimistic) — f69295b
+- [x] 2.7 Odświeżenie strony → wydatek nie wraca (persisted) — f69295b
+- [x] 2.8 Drugie okno: usunięty wydatek znika w < 5s (polling) — f69295b

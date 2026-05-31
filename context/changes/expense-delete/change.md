@@ -1,7 +1,7 @@
 ---
 id: expense-delete
 title: "Usuwanie własnego wydatku z potwierdzeniem (S-02)"
-status: implementing
+status: implemented
 created: 2026-05-31
 updated: 2026-05-31
 roadmap_ref: S-02
