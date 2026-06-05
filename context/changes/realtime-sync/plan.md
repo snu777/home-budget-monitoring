@@ -103,11 +103,11 @@ Polling co 2.5s generuje ~1440 req/h per użytkownika (vs ~720 przy 5s). Przy 2 
 
 #### Automatyczne
 
-- [x] 1.1 `npm run lint` przechodzi bez błędów
-- [x] 1.2 `npm run build` przechodzi (brak błędów TypeScript)
+- [x] 1.1 `npm run lint` przechodzi bez błędów — 22d9153
+- [x] 1.2 `npm run build` przechodzi (brak błędów TypeScript) — 22d9153
 
 #### Ręczne
 
-- [x] 1.3 Wydatek dodany przez partnera pojawia się w < 3s bez odświeżenia
-- [x] 1.4 Wydatek usunięty przez partnera znika w < 3s bez odświeżenia
-- [x] 1.5 Brak regresji: optimistic update i usuwanie nadal działają
+- [x] 1.3 Wydatek dodany przez partnera pojawia się w < 3s bez odświeżenia — 22d9153
+- [x] 1.4 Wydatek usunięty przez partnera znika w < 3s bez odświeżenia — 22d9153
+- [x] 1.5 Brak regresji: optimistic update i usuwanie nadal działają — 22d9153
