@@ -29,8 +29,13 @@ export const GET: APIRoute = async (context) => {
   }
 
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+  // Optional `month` selector: "previous" serves the prior calendar month
+  // (for MoM comparison); anything else (incl. "current"/absent) keeps today's
+  // default behavior. monthOffset shifts the base month; Date normalizes the
+  // January → prior-year December rollover automatically.
+  const monthOffset = context.url.searchParams.get("month") === "previous" ? -1 : 0;
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).toISOString().split("T")[0];
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0).toISOString().split("T")[0];
 
   const { data: expenses, error } = await supabase
     .from("expenses")

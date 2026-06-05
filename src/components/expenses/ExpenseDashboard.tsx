@@ -174,6 +174,7 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
 
 export default function ExpenseDashboard({ currentUserId }: Props) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [prevExpenses, setPrevExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteError, setDeleteError] = useState<{ id: string; message: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -196,6 +197,18 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
 
   useEffect(() => {
     fetchExpenses();
+    // Previous month is immutable within a session — fetch once on mount and
+    // keep it out of the poll loop (drives MoM markers in CategorySummary).
+    fetch("/api/expenses?month=previous")
+      .then((res) => res.json())
+      .then((data: { expenses?: Expense[] }) => {
+        if (data.expenses) {
+          setPrevExpenses(data.expenses);
+        }
+      })
+      .catch(() => {
+        // network errors silently ignored; markers simply won't render
+      });
     intervalRef.current = setInterval(fetchExpenses, POLL_INTERVAL_MS);
     return () => {
       if (intervalRef.current !== null) {
@@ -244,7 +257,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
         <AddExpenseForm onAdd={handleAdd} onRemove={handleRemove} />
       </div>
 
-      {!(loading && expenses.length === 0) && <CategorySummary expenses={expenses} />}
+      {!(loading && expenses.length === 0) && <CategorySummary expenses={expenses} prevExpenses={prevExpenses} />}
 
       <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
         <h3 className="mb-4 font-semibold">

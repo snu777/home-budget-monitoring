@@ -4,6 +4,9 @@ import { formatAmount } from "@/lib/format";
 
 interface Props {
   expenses: Expense[];
+  // Previous-month expenses for MoM comparison markers (wired up in Phase 2).
+  // Optional so the component keeps working with current-month-only data.
+  prevExpenses?: Expense[];
 }
 
 // 9 distinct colors: the 5 chart CSS tokens cycled, plus 4 complementary hues
