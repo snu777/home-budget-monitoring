@@ -1,9 +1,10 @@
 ---
 id: expense-data-schema
 title: "Schemat danych wydatków"
-status: impl_reviewed
+status: archived
 created: 2026-05-28
-updated: 2026-05-31
+updated: 2026-06-05
+archived_at: 2026-06-05T10:51:59Z
 roadmap_ref: F-01
 ---
 
