@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import type { Expense, ExpenseCategory } from "@/types";
 import { EXPENSE_CATEGORIES } from "@/types";
+import { formatAmount } from "@/lib/format";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,15 +29,6 @@ interface AddExpenseFormProps {
 
 function today(): string {
   return new Date().toISOString().split("T")[0];
-}
-
-function formatAmount(amount: number): string {
-  return (
-    amount.toLocaleString("pl-PL", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }) + " zł"
-  );
 }
 
 function formatDate(dateStr: string): string {
