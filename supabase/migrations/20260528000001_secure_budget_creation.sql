@@ -47,7 +47,8 @@ BEGIN
 
   SELECT id INTO v_budget_id
   FROM public.budgets
-  WHERE invite_code = p_invite_code;
+  WHERE invite_code = p_invite_code
+  FOR UPDATE;
 
   IF v_budget_id IS NULL THEN
     RAISE EXCEPTION 'invalid_invite_code';
