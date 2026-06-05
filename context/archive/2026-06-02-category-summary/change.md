@@ -1,10 +1,10 @@
 ---
 change_id: category-summary
 title: Category spending summary for current month
-status: impl_reviewed
+status: archived
 created: 2026-06-02
 updated: 2026-06-05
-archived_at: null
+archived_at: 2026-06-05T10:54:40Z
 ---
 
 ## Notes
