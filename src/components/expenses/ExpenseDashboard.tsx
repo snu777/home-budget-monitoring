@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import type { Expense, ExpenseCategory } from "@/types";
 import { EXPENSE_CATEGORIES } from "@/types";
 import { formatAmount } from "@/lib/format";
+import CategorySummary from "@/components/expenses/CategorySummary";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -242,6 +243,8 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
         <h3 className="mb-4 font-semibold text-blue-100/80">Dodaj wydatek</h3>
         <AddExpenseForm onAdd={handleAdd} onRemove={handleRemove} />
       </div>
+
+      {!(loading && expenses.length === 0) && <CategorySummary expenses={expenses} />}
 
       <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
         <h3 className="mb-4 font-semibold">

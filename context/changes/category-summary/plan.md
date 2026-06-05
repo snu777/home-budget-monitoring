@@ -164,26 +164,26 @@ Client-side aggregation of ~30-50 expenses per month is trivial. Recharts adds ~
 
 #### Automated
 
-- [x] 1.1 Lint passes: npm run lint
-- [x] 1.2 Build succeeds: npm run build
+- [x] 1.1 Lint passes: npm run lint — 5c784e7
+- [x] 1.2 Build succeeds: npm run build — 5c784e7
 
 #### Manual
 
-- [x] 1.3 Donut chart renders with correct proportions and distinct colors
-- [x] 1.4 Legend shows category name, amount, and percentage
-- [x] 1.5 Monthly total is prominently displayed
-- [x] 1.6 Empty state shows appropriate message
+- [x] 1.3 Donut chart renders with correct proportions and distinct colors — 5c784e7
+- [x] 1.4 Legend shows category name, amount, and percentage — 5c784e7
+- [x] 1.5 Monthly total is prominently displayed — 5c784e7
+- [x] 1.6 Empty state shows appropriate message — 5c784e7
 
 ### Phase 2: Dashboard integration
 
 #### Automated
 
-- [ ] 2.1 Lint passes: npm run lint
-- [ ] 2.2 Build succeeds: npm run build
+- [x] 2.1 Lint passes: npm run lint
+- [x] 2.2 Build succeeds: npm run build
 
 #### Manual
 
-- [ ] 2.3 Summary section appears above expense list
-- [ ] 2.4 Adding/deleting expenses updates summary immediately
-- [ ] 2.5 Layout is responsive on mobile
-- [ ] 2.6 Polish locale formatting is consistent
+- [x] 2.3 Summary section appears above expense list
+- [x] 2.4 Adding/deleting expenses updates summary immediately
+- [x] 2.5 Layout is responsive on mobile
+- [x] 2.6 Polish locale formatting is consistent
