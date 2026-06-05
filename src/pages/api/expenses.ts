@@ -5,6 +5,16 @@ import type { ExpenseCategory } from "@/types";
 
 export const prerender = false;
 
+// Format a Date's *local* calendar Y-M-D as "YYYY-MM-DD". Avoids the UTC shift
+// of toISOString(), which in positive-offset timezones rolls a local-midnight
+// boundary back into the previous day (and previous month).
+function toLocalISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export const GET: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -34,8 +44,8 @@ export const GET: APIRoute = async (context) => {
   // default behavior. monthOffset shifts the base month; Date normalizes the
   // January → prior-year December rollover automatically.
   const monthOffset = context.url.searchParams.get("month") === "previous" ? -1 : 0;
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).toISOString().split("T")[0];
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0).toISOString().split("T")[0];
+  const startOfMonth = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + monthOffset, 1));
+  const endOfMonth = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0));
 
   const { data: expenses, error } = await supabase
     .from("expenses")
