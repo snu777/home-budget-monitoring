@@ -19,13 +19,13 @@ import {
 const POLL_INTERVAL_MS = 2500;
 
 interface Props {
-  budgetId: string;
   currentUserId: string;
 }
 
 interface AddExpenseFormProps {
   onAdd: (expense: Expense) => void;
   onRemove: (id: string) => void;
+  onConfirm: (id: string) => void;
 }
 
 function today(): string {
@@ -49,7 +49,7 @@ function groupByDate(expenses: Expense[]): Map<string, Expense[]> {
   return map;
 }
 
-function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
+function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>(EXPENSE_CATEGORIES[0]);
   const [date, setDate] = useState(today());
@@ -93,6 +93,10 @@ function AddExpenseForm({ onAdd, onRemove }: AddExpenseFormProps) {
         if (data.error) {
           onRemove(optimisticId);
           setAddError(data.error);
+        } else {
+          // POST persisted — stop preserving the optimistic entry so the next
+          // poll can replace it with the server row.
+          onConfirm(optimisticId);
         }
       })
       .catch(() => {
@@ -178,13 +182,31 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
   const [loading, setLoading] = useState(true);
   const [deleteError, setDeleteError] = useState<{ id: string; message: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // IDs of optimistic entries whose POST is still in flight; a poll landing
+  // mid-request must keep these so the new row doesn't flicker out.
+  const optimisticIdsRef = useRef<Set<string>>(new Set());
 
   const fetchExpenses = () => {
     fetch("/api/expenses")
-      .then((res) => res.json())
-      .then((data: { expenses?: Expense[] }) => {
-        if (data.expenses) {
-          setExpenses(data.expenses);
+      .then((res) => {
+        if (res.status === 401) {
+          // session expired — stop polling and bounce to sign-in
+          if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          window.location.href = "/auth/signin";
+          return null;
+        }
+        return res.json() as Promise<{ expenses?: Expense[] }>;
+      })
+      .then((data) => {
+        const fresh = data?.expenses;
+        if (fresh) {
+          setExpenses((prev) => {
+            const inFlight = prev.filter((e) => optimisticIdsRef.current.has(e.id));
+            return [...fresh, ...inFlight];
+          });
         }
       })
       .catch(() => {
@@ -218,11 +240,17 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
   }, []);
 
   const handleAdd = (optimistic: Expense) => {
+    optimisticIdsRef.current.add(optimistic.id);
     setExpenses((prev) => [...prev, optimistic]);
   };
 
   const handleRemove = (id: string) => {
+    optimisticIdsRef.current.delete(id);
     setExpenses((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const handleConfirm = (id: string) => {
+    optimisticIdsRef.current.delete(id);
   };
 
   const handleDelete = (id: string) => {
@@ -254,7 +282,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
     <div className="space-y-4">
       <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
         <h3 className="mb-4 font-semibold text-blue-100/80">Dodaj wydatek</h3>
-        <AddExpenseForm onAdd={handleAdd} onRemove={handleRemove} />
+        <AddExpenseForm onAdd={handleAdd} onRemove={handleRemove} onConfirm={handleConfirm} />
       </div>
 
       {!(loading && expenses.length === 0) && <CategorySummary expenses={expenses} prevExpenses={prevExpenses} />}

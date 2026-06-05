@@ -97,6 +97,12 @@ export const POST: APIRoute = async (context) => {
   if (typeof amount !== "number" || amount <= 0) {
     return Response.json({ error: "Invalid amount" }, { status: 400 });
   }
+  if (amount > 1_000_000) {
+    return Response.json({ error: "Amount too large" }, { status: 400 });
+  }
+  // Round to cents before insert so the API contract matches the NUMERIC(10,2)
+  // column instead of relying on DB-side rounding of sub-cent values.
+  const safeAmount = Math.round(amount * 100) / 100;
 
   if (typeof category !== "string" || !EXPENSE_CATEGORIES.includes(category as ExpenseCategory)) {
     return Response.json({ error: "Invalid category" }, { status: 400 });
@@ -114,7 +120,7 @@ export const POST: APIRoute = async (context) => {
     .insert({
       budget_id: membership.budget_id,
       created_by: user.id,
-      amount,
+      amount: safeAmount,
       category: category as ExpenseCategory,
       expense_date,
     })
