@@ -1,7 +1,7 @@
 ---
 change_id: monthly-comparison
 title: Month-over-month category comparison flags (>20% MoM)
-status: implementing
+status: implemented
 created: 2026-06-05
 updated: 2026-06-05
 archived_at: null

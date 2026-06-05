@@ -184,13 +184,13 @@ None — no schema or data migration. RLS already scopes previous-month reads to
 
 #### Automated
 
-- [x] 2.1 Lint passes: npm run lint
-- [x] 2.2 Build succeeds: npm run build
+- [x] 2.1 Lint passes: npm run lint — 76c75b8
+- [x] 2.2 Build succeeds: npm run build — 76c75b8
 
 #### Manual
 
-- [x] 2.3 Up >20% red marker, down >20% green marker, within ±20% none
-- [x] 2.4 Zero-previous category shows no marker
-- [x] 2.5 No previous month → no markers anywhere (first-month behavior)
-- [x] 2.6 Percentages are integers and match hand calculation
-- [x] 2.7 Markers update via polling; legend non-overflowing on mobile
+- [x] 2.3 Up >20% red marker, down >20% green marker, within ±20% none — 76c75b8
+- [x] 2.4 Zero-previous category shows no marker — 76c75b8
+- [x] 2.5 No previous month → no markers anywhere (first-month behavior) — 76c75b8
+- [x] 2.6 Percentages are integers and match hand calculation — 76c75b8
+- [x] 2.7 Markers update via polling; legend non-overflowing on mobile — 76c75b8
