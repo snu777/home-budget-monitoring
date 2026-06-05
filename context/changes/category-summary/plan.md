@@ -178,12 +178,12 @@ Client-side aggregation of ~30-50 expenses per month is trivial. Recharts adds ~
 
 #### Automated
 
-- [x] 2.1 Lint passes: npm run lint
-- [x] 2.2 Build succeeds: npm run build
+- [x] 2.1 Lint passes: npm run lint — 87ff0ea
+- [x] 2.2 Build succeeds: npm run build — 87ff0ea
 
 #### Manual
 
-- [x] 2.3 Summary section appears above expense list
-- [x] 2.4 Adding/deleting expenses updates summary immediately
-- [x] 2.5 Layout is responsive on mobile
-- [x] 2.6 Polish locale formatting is consistent
+- [x] 2.3 Summary section appears above expense list — 87ff0ea
+- [x] 2.4 Adding/deleting expenses updates summary immediately — 87ff0ea
+- [x] 2.5 Layout is responsive on mobile — 87ff0ea
+- [x] 2.6 Polish locale formatting is consistent — 87ff0ea

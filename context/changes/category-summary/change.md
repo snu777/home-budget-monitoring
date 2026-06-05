@@ -1,7 +1,7 @@
 ---
 change_id: category-summary
 title: Category spending summary for current month
-status: implementing
+status: implemented
 created: 2026-06-02
 updated: 2026-06-05
 archived_at: null
