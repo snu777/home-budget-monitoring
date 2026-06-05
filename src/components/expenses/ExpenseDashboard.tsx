@@ -14,6 +14,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const POLL_INTERVAL_MS = 2500;
+
 interface Props {
   budgetId: string;
   currentUserId: string;
@@ -201,7 +203,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
 
   useEffect(() => {
     fetchExpenses();
-    intervalRef.current = setInterval(fetchExpenses, 5000);
+    intervalRef.current = setInterval(fetchExpenses, POLL_INTERVAL_MS);
     return () => {
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
