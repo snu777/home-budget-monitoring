@@ -1,6 +1,8 @@
 import { Pie, PieChart, ResponsiveContainer } from "recharts";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import type { Expense, ExpenseCategory } from "@/types";
 import { formatAmount } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 interface Props {
   expenses: Expense[];
@@ -31,11 +33,36 @@ interface CategoryTotal {
   fill: string;
 }
 
-function aggregate(expenses: Expense[]): { rows: CategoryTotal[]; total: number } {
+// MoM comparison threshold: a category must move by strictly more than 20%
+// versus the previous month to earn a marker.
+const MOM_THRESHOLD = 0.2;
+
+interface Marker {
+  direction: "up" | "down";
+  percent: number;
+}
+
+function sumByCategory(expenses: Expense[]): Map<ExpenseCategory, number> {
   const sums = new Map<ExpenseCategory, number>();
   for (const e of expenses) {
     sums.set(e.category, (sums.get(e.category) ?? 0) + e.amount);
   }
+  return sums;
+}
+
+// Decide the marker for one category from its current vs previous totals.
+// Returns null when there is no comparison base (previous total is 0) or the
+// change stays within ±20%.
+function computeMarker(current: number, previous: number): Marker | null {
+  if (previous === 0) return null;
+  const delta = (current - previous) / previous;
+  if (delta > MOM_THRESHOLD) return { direction: "up", percent: Math.round(delta * 100) };
+  if (delta < -MOM_THRESHOLD) return { direction: "down", percent: Math.round(Math.abs(delta) * 100) };
+  return null;
+}
+
+function aggregate(expenses: Expense[]): { rows: CategoryTotal[]; total: number } {
+  const sums = sumByCategory(expenses);
 
   const rows = [...sums.entries()]
     .filter(([, total]) => total > 0)
@@ -50,10 +77,15 @@ function aggregate(expenses: Expense[]): { rows: CategoryTotal[]; total: number 
   return { rows, total };
 }
 
-export default function CategorySummary({ expenses }: Props) {
+export default function CategorySummary({ expenses, prevExpenses = [] }: Props) {
   const now = new Date();
   const monthLabel = now.toLocaleDateString("pl-PL", { month: "long", year: "numeric" });
   const { rows, total } = aggregate(expenses);
+
+  // First month of use: previous month has no expenses at all → no markers
+  // anywhere. Otherwise compare each category against its previous-month total.
+  const hasPrevMonth = prevExpenses.length > 0;
+  const prevSums = sumByCategory(prevExpenses);
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
@@ -88,13 +120,29 @@ export default function CategorySummary({ expenses }: Props) {
           <ul className="flex-1 space-y-2">
             {rows.map((row) => {
               const percent = total > 0 ? Math.round((row.total / total) * 100) : 0;
+              const marker = hasPrevMonth ? computeMarker(row.total, prevSums.get(row.category) ?? 0) : null;
               return (
                 <li key={row.category} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex items-center gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
                     <span className="inline-block size-3 shrink-0 rounded-full" style={{ backgroundColor: row.fill }} />
-                    <span>{row.category}</span>
+                    <span className="truncate">{row.category}</span>
+                    {marker && (
+                      <span
+                        className={cn(
+                          "flex shrink-0 items-center gap-0.5 text-xs font-medium",
+                          marker.direction === "up" ? "text-red-400" : "text-green-400",
+                        )}
+                      >
+                        {marker.direction === "up" ? (
+                          <TrendingUp className="size-3.5" />
+                        ) : (
+                          <TrendingDown className="size-3.5" />
+                        )}
+                        {marker.direction === "up" ? `↑+${marker.percent}%` : `↓−${marker.percent}%`}
+                      </span>
+                    )}
                   </span>
-                  <span className="flex items-center gap-2">
+                  <span className="flex shrink-0 items-center gap-2">
                     <span className="font-mono font-semibold">{formatAmount(row.total)}</span>
                     <span className="w-10 text-right text-blue-100/40">{percent}%</span>
                   </span>

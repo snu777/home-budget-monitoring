@@ -171,26 +171,26 @@ None — no schema or data migration. RLS already scopes previous-month reads to
 
 #### Automated
 
-- [x] 1.1 Lint passes: npm run lint
-- [x] 1.2 Build succeeds: npm run build
+- [x] 1.1 Lint passes: npm run lint — 2738344
+- [x] 1.2 Build succeeds: npm run build — 2738344
 
 #### Manual
 
-- [x] 1.3 `?month=previous` returns prior-month expenses; default unchanged
-- [x] 1.4 January resolves previous month to prior-year December
-- [x] 1.5 Exactly one previous-month request fires on load (not per poll)
+- [x] 1.3 `?month=previous` returns prior-month expenses; default unchanged — 2738344
+- [x] 1.4 January resolves previous month to prior-year December — 2738344
+- [x] 1.5 Exactly one previous-month request fires on load (not per poll) — 2738344
 
 ### Phase 2: Comparison logic and markers
 
 #### Automated
 
-- [ ] 2.1 Lint passes: npm run lint
-- [ ] 2.2 Build succeeds: npm run build
+- [x] 2.1 Lint passes: npm run lint
+- [x] 2.2 Build succeeds: npm run build
 
 #### Manual
 
-- [ ] 2.3 Up >20% red marker, down >20% green marker, within ±20% none
-- [ ] 2.4 Zero-previous category shows no marker
-- [ ] 2.5 No previous month → no markers anywhere (first-month behavior)
-- [ ] 2.6 Percentages are integers and match hand calculation
-- [ ] 2.7 Markers update via polling; legend non-overflowing on mobile
+- [x] 2.3 Up >20% red marker, down >20% green marker, within ±20% none
+- [x] 2.4 Zero-previous category shows no marker
+- [x] 2.5 No previous month → no markers anywhere (first-month behavior)
+- [x] 2.6 Percentages are integers and match hand calculation
+- [x] 2.7 Markers update via polling; legend non-overflowing on mobile
