@@ -34,7 +34,7 @@ to a follow-up in the same change folder).
 - **The RLS boundary (what we are testing):**
   `expenses_select_budget_members` and `budgets_select_members`
   (`supabase/migrations/20260528000000_expense_data_schema.sql:107-114,
-  61-69`) scope reads by `auth.uid()` membership. No `USING (true)`, no
+61-69`) scope reads by `auth.uid()` membership. No `USING (true)`, no
   `anon` grant, no service-role key anywhere in the app — so a per-user
   anon-key client is subject to RLS, which is exactly the boundary under
   test (see `research.md`).
@@ -80,7 +80,7 @@ Verification: `npm test` is green; deliberately breaking a policy
   `auth.uid()`) and **Risk #3** (delete IDOR) — same change folder,
   separate follow-up after their research is appended.
 - **`budget_members` own-row test, anon/unauthenticated read, cross-budget
-  INSERT rejection** — deferred per scoping decision. *Note:* the
+  INSERT rejection** — deferred per scoping decision. _Note:_ the
   anon-read case is named in the test plan's Risk #1 success criteria; it
   is a cheap add and is called out as a recommended follow-up, not a
   silent drop.
@@ -177,6 +177,7 @@ ignore should cover it; verify and add if not).
 so individual tests stay declarative.
 
 **Contract**: Exports —
+
 - `anonClient()` → a fresh `@supabase/supabase-js` client on
   `SUPABASE_URL` + anon `SUPABASE_KEY`, with session persistence disabled
   (`auth: { persistSession: false, autoRefreshToken: false }`) so parallel
@@ -253,6 +254,7 @@ Prove the cross-couple read boundary: user B reads none of user A's
 `budgets_select_members` policies actually isolate two budgets.
 
 **Contract**: Lifecycle and cases —
+
 - `beforeAll`: via the helpers, create shared users A and B
   (timestamp-unique); A `create_budget` → budget A, seed one expense in A;
   B `create_budget` → budget B, seed one expense in B. Keep each user in
@@ -345,7 +347,7 @@ covered and #2/#3 remain.
 
 - None in this phase — Risk #1 is a database-authorization concern that
   only a real-Postgres integration test can prove (test plan §1, principle
-  #1: cheapest test that gives *real* signal).
+  #1: cheapest test that gives _real_ signal).
 
 ### Integration tests:
 
@@ -411,7 +413,7 @@ lifecycle strategy is "running instance + unique IDs", not reset).
 #### Automated
 
 - [ ] 2.1 `npm test` green including the isolation suite
-- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.2 Lint passes: `npm run lint` — 6c24323
 
 #### Manual
 
@@ -423,7 +425,7 @@ lifecycle strategy is "running instance + unique IDs", not reset).
 
 #### Automated
 
-- [ ] 3.1 Docs format clean: `npm run format`
+- [x] 3.1 Docs format clean: `npm run format`
 
 #### Manual
 
