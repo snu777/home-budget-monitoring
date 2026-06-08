@@ -1,7 +1,7 @@
 ---
 id: testing-expense-computation
 title: "Expense computation correctness (Test Plan Phase 3)"
-status: implemented
+status: impl_reviewed
 created: 2026-06-08
 updated: 2026-06-08
 roadmap_ref: test-plan §3 Phase 3
