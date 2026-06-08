@@ -395,23 +395,23 @@ lifecycle strategy is "running instance + unique IDs", not reset).
 
 #### Automated
 
-- [x] 1.1 Dependencies install cleanly: `npm install`
-- [x] 1.2 Type-check passes: `npx astro sync && npx tsc --noEmit`
-- [x] 1.3 Lint passes: `npm run lint`
-- [ ] 1.4 `npm test` runs and the RLS-guard test passes (local Supabase running)
+- [x] 1.1 Dependencies install cleanly: `npm install` — 633f108
+- [x] 1.2 Type-check passes: `npx astro sync && npx tsc --noEmit` — 633f108
+- [x] 1.3 Lint passes: `npm run lint` — 633f108
+- [x] 1.4 `npm test` runs and the RLS-guard test passes (local Supabase running) — 633f108
 
 #### Manual
 
-- [ ] 1.5 `npx supabase start` running; `.env.test` holds URL + anon key + service-role key
-- [ ] 1.6 Setting the anon client to the service-role key makes RLS-guard (b) fail
-- [ ] 1.7 No service-role key in `astro.config.mjs`, `.env.example` values, or any committed file
+- [x] 1.5 `npx supabase start` running; `.env.test` holds URL + anon key + service-role key
+- [x] 1.6 Setting the anon client to the service-role key makes RLS-guard (b) fail
+- [x] 1.7 No service-role key in `astro.config.mjs`, `.env.example` values, or any committed file
 
 ### Phase 2: Risk #1 cross-couple isolation suite
 
 #### Automated
 
 - [ ] 2.1 `npm test` green including the isolation suite
-- [ ] 2.2 Lint passes: `npm run lint`
+- [x] 2.2 Lint passes: `npm run lint`
 
 #### Manual
 
