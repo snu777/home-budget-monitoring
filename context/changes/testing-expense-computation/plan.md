@@ -358,7 +358,7 @@ runtime behavior changes.
 
 #### Automated
 
-- [ ] 2.1 `npm test` runs both projects green (unit + integration)
+- [x] 2.1 `npm test` runs both projects green (unit + integration) — 42f72a3
 - [x] 2.2 Unit suite runs green: `npx vitest run --project unit` — 42f72a3
 - [x] 2.3 Lint passes: `npm run lint` — 42f72a3
 - [x] 2.4 Type-check passes: `npx tsc --noEmit` — 42f72a3
@@ -372,9 +372,9 @@ runtime behavior changes.
 
 #### Automated
 
-- [x] 3.1 Docs format clean: `npm run format`
+- [x] 3.1 Docs format clean: `npm run format` — 9c4231a
 
 #### Manual
 
-- [ ] 3.2 §6.1 reads as a usable unit-test recipe
-- [ ] 3.3 §3 Phase 3 row reflects the shipped unit suite
+- [x] 3.2 §6.1 reads as a usable unit-test recipe
+- [x] 3.3 §3 Phase 3 row reflects the shipped unit suite
