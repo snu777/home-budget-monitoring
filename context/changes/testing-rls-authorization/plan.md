@@ -412,22 +412,22 @@ lifecycle strategy is "running instance + unique IDs", not reset).
 
 #### Automated
 
-- [ ] 2.1 `npm test` green including the isolation suite
+- [x] 2.1 `npm test` green including the isolation suite — 6c24323
 - [x] 2.2 Lint passes: `npm run lint` — 6c24323
 
 #### Manual
 
-- [ ] 2.3 No leftover test users/budgets after a run (verified in Studio)
-- [ ] 2.4 Weakening `expenses_select_budget_members` to `USING (true)` makes the expenses isolation test fail
-- [ ] 2.5 Suite stays green on two consecutive runs (no ID collisions / 429)
+- [x] 2.3 No leftover test users/budgets after a run (verified in Studio)
+- [x] 2.4 Weakening `expenses_select_budget_members` to `USING (true)` makes the expenses isolation test fail
+- [x] 2.5 Suite stays green on two consecutive runs (no ID collisions / 429)
 
 ### Phase 3: Cookbook + test-plan wiring
 
 #### Automated
 
-- [x] 3.1 Docs format clean: `npm run format`
+- [x] 3.1 Docs format clean: `npm run format` — 972562e
 
 #### Manual
 
-- [ ] 3.2 §6.2 reads as a usable recipe for the next contributor
-- [ ] 3.3 §4 Vitest row shows the real installed version + `checked:` date
+- [x] 3.2 §6.2 reads as a usable recipe for the next contributor
+- [x] 3.3 §4 Vitest row shows the real installed version + `checked:` date
