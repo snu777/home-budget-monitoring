@@ -28,8 +28,10 @@ describe("RLS harness guard", () => {
   });
 
   afterAll(async () => {
+    // Best-effort teardown: a failed delete must not fail the suite (matches
+    // rls-isolation.test.ts). Unique timestamped emails avoid rerun collisions.
     if (user) {
-      await deleteUser(adminClient(), user.userId);
+      await Promise.allSettled([deleteUser(adminClient(), user.userId)]);
     }
   });
 

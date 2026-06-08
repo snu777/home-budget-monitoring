@@ -1,7 +1,7 @@
 ---
 id: testing-rls-authorization
 title: "Test runner + RLS authorization (Test Plan Phase 1)"
-status: implemented
+status: impl_reviewed
 created: 2026-06-08
 updated: 2026-06-08
 roadmap_ref: test-plan §3 Phase 1
