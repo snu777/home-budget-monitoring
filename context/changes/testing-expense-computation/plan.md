@@ -344,27 +344,27 @@ runtime behavior changes.
 
 #### Automated
 
-- [x] 1.1 Type-check passes: `npx astro sync && npx tsc --noEmit`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Type-check passes: `npx astro sync && npx tsc --noEmit` — 1e7f2f6
+- [x] 1.2 Lint passes: `npm run lint` — 1e7f2f6
+- [x] 1.3 Production build succeeds: `npm run build` — 1e7f2f6
 
 #### Manual
 
-- [x] 1.4 Dashboard renders identically (normal / first month / zero-expense)
+- [x] 1.4 Dashboard renders identically (normal / first month / zero-expense) — 1e7f2f6
 
 ### Phase 2: Unit runner + Risk #6 suite
 
 #### Automated
 
 - [ ] 2.1 `npm test` runs both projects green (unit + integration)
-- [ ] 2.2 Unit suite runs green: `npx vitest run --project unit`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 Type-check passes: `npx tsc --noEmit`
+- [x] 2.2 Unit suite runs green: `npx vitest run --project unit`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 Type-check passes: `npx tsc --noEmit`
 
 #### Manual
 
-- [ ] 2.5 Flipping `>` to `>=` (or threshold to 0) makes a boundary test fail
-- [ ] 2.6 Characterization file reads as labelled current-behavior documentation
+- [x] 2.5 Flipping `>` to `>=` (or threshold to 0) makes a boundary test fail
+- [x] 2.6 Characterization file reads as labelled current-behavior documentation
 
 ### Phase 3: Cookbook + test-plan wiring
 
