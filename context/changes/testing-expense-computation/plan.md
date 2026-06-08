@@ -28,7 +28,7 @@ This is Phase 3 of `context/foundation/test-plan.md`, scoped to **Risk #6**.
   applied after the threshold decision so it can't flip the boundary.
 - **A Vitest harness exists** from `testing-rls-authorization` but is
   **integration-only**: `vitest.config.ts` has `include:
-  ["tests/integration/**/*.test.ts"]`, a dotenv `setupFiles`, and serial
+["tests/integration/**/*.test.ts"]`, a dotenv `setupFiles`, and serial
   execution. Unit tests need none of that and must run as a separate project.
 - **Known MVP quirks** (accepted, not bugs): float/cents accumulation has no
   per-row rounding; the sum of rounded per-category percentages need not
@@ -96,7 +96,7 @@ and write the Risk #6 suite plus the characterization tests.
   dashboard render, since no unit tests exist yet to catch a regression.
 - **Characterization tests are current-behavior, not spec.** Label the
   float/cents, sum-of-rounded-%≠100, and no-"Inne"-bucket tests explicitly as
-  characterization (documenting incidental output). They assert *current*
+  characterization (documenting incidental output). They assert _current_
   behavior, so a future intentional numeric-model change is expected to update
   them — unlike the rule-based tests, which assert the PRD and should only
   change if the rule changes.
@@ -122,6 +122,7 @@ unit-tested without rendering the component or touching the DB.
 
 **Contract**: Export, with behavior identical to the current private versions
 in `CategorySummary.tsx:45-78` —
+
 - `sumByCategory(expenses): Map<ExpenseCategory, number>`
 - `computeMarker(current, previous): Marker | null` — strict `>0.2` /
   `<-0.2`, `previous === 0 → null`, `Math.round` percent after the decision.
@@ -202,6 +203,7 @@ behavior unchanged.
 from the PRD, not from current output.
 
 **Contract**: Cover —
+
 - **Aggregation totals**: per-category sums; descending sort; the `total>0`
   filter drops zero/negative-net categories; grand total = sum of surviving
   rows; empty input → `{ rows: [], total: 0 }`.
@@ -357,20 +359,20 @@ runtime behavior changes.
 #### Automated
 
 - [ ] 2.1 `npm test` runs both projects green (unit + integration)
-- [x] 2.2 Unit suite runs green: `npx vitest run --project unit`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 Type-check passes: `npx tsc --noEmit`
+- [x] 2.2 Unit suite runs green: `npx vitest run --project unit` — 42f72a3
+- [x] 2.3 Lint passes: `npm run lint` — 42f72a3
+- [x] 2.4 Type-check passes: `npx tsc --noEmit` — 42f72a3
 
 #### Manual
 
-- [x] 2.5 Flipping `>` to `>=` (or threshold to 0) makes a boundary test fail
-- [x] 2.6 Characterization file reads as labelled current-behavior documentation
+- [x] 2.5 Flipping `>` to `>=` (or threshold to 0) makes a boundary test fail — 42f72a3
+- [x] 2.6 Characterization file reads as labelled current-behavior documentation — 42f72a3
 
 ### Phase 3: Cookbook + test-plan wiring
 
 #### Automated
 
-- [ ] 3.1 Docs format clean: `npm run format`
+- [x] 3.1 Docs format clean: `npm run format`
 
 #### Manual
 

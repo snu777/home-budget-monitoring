@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-08 (Phase 1 → implementing: Risk #1 harness + isolation shipped)
+> Last updated: 2026-06-08 (Phase 1 → implementing: Risk #1 shipped; Phase 3 → implementing: Risk #6 unit suite shipped)
 
 ## 1. Strategy
 
@@ -75,13 +75,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                          | Goal (one line)                                                                                                                      | Risks covered | Test types                    | Status       | Change folder                                |
-| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ----------------------------- | ------------ | -------------------------------------------- |
-| 1   | Test runner + RLS authorization     | Stand up Vitest + a local-Supabase integration harness and prove cross-couple isolation and membership integrity on all three tables | #1, #2, #3    | integration (DB), concurrency | implementing | `context/changes/testing-rls-authorization/` |
-| 2   | API input + error-boundary contract | Prove server-side validation is enforced regardless of client and that error responses leak no schema text                           | #4            | integration / contract        | not started  | —                                            |
-| 3   | Expense computation correctness     | Prove aggregation, the MoM rules, and month-boundary windows are exact at the cheapest deterministic layer                           | #6            | unit                          | not started  | —                                            |
-| 4   | Sync behaviour                      | Prove optimistic add/delete, polling, and 401 handling behave under races                                                            | #5            | component (RTL)               | not started  | —                                            |
-| 5   | Quality-gate wiring                 | Lock the floor: add a test step to CI so the new suites block regressions                                                            | cross-cutting | gates                         | not started  | —                                            |
+| #   | Phase name                          | Goal (one line)                                                                                                                      | Risks covered | Test types                    | Status       | Change folder                                  |
+| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ----------------------------- | ------------ | ---------------------------------------------- |
+| 1   | Test runner + RLS authorization     | Stand up Vitest + a local-Supabase integration harness and prove cross-couple isolation and membership integrity on all three tables | #1, #2, #3    | integration (DB), concurrency | implementing | `context/changes/testing-rls-authorization/`   |
+| 2   | API input + error-boundary contract | Prove server-side validation is enforced regardless of client and that error responses leak no schema text                           | #4            | integration / contract        | not started  | —                                              |
+| 3   | Expense computation correctness     | Prove aggregation, the MoM rules, and month-boundary windows are exact at the cheapest deterministic layer                           | #6            | unit                          | implementing | `context/changes/testing-expense-computation/` |
+| 4   | Sync behaviour                      | Prove optimistic add/delete, polling, and 401 handling behave under races                                                            | #5            | component (RTL)               | not started  | —                                              |
+| 5   | Quality-gate wiring                 | Lock the floor: add a test step to CI so the new suites block regressions                                                            | cross-cutting | gates                         | not started  | —                                              |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -91,13 +91,13 @@ orchestrator updates Status as artifacts appear on disk.
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer                  | Tool                                  | Version                          | Notes                                                                                                                           |
-| ---------------------- | ------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| unit + integration     | Vitest                                | 4.1.8 (checked: 2026-06-08)      | Vite-native, fits the Astro/Vite toolchain; runner + first integration tests stood up in Phase 1. `dotenv` 17 loads `.env.test` |
-| integration (DB / RLS) | local Supabase (`npx supabase start`) | CLI 2.98.2 (checked: 2026-06-08) | RLS proven against real Postgres; harness seeds two budgets / users via the `create_budget` SECURITY DEFINER RPC                |
-| component              | React Testing Library + jsdom         | none yet — see §3 Phase 4        | For the `ExpenseDashboard` sync/optimistic/401 behaviour                                                                        |
-| e2e                    | (not planned for MVP)                 | —                                | Integration vs local Supabase covers the auth + DB crossing more cheaply than browser e2e at this scale                         |
-| accessibility          | (not planned for MVP)                 | —                                | Out of negative-space scope; revisit post-MVP                                                                                   |
+| Layer                  | Tool                                  | Version                          | Notes                                                                                                                                      |
+| ---------------------- | ------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| unit + integration     | Vitest                                | 4.1.8 (checked: 2026-06-08)      | Vite-native; two projects — `unit` (Phase 3, no DB, parallel) + `integration` (Phase 1, `.env.test` via `dotenv` 17). `npm test` runs both |
+| integration (DB / RLS) | local Supabase (`npx supabase start`) | CLI 2.98.2 (checked: 2026-06-08) | RLS proven against real Postgres; harness seeds two budgets / users via the `create_budget` SECURITY DEFINER RPC                           |
+| component              | React Testing Library + jsdom         | none yet — see §3 Phase 4        | For the `ExpenseDashboard` sync/optimistic/401 behaviour                                                                                   |
+| e2e                    | (not planned for MVP)                 | —                                | Integration vs local Supabase covers the auth + DB crossing more cheaply than browser e2e at this scale                                    |
+| accessibility          | (not planned for MVP)                 | —                                | Out of negative-space scope; revisit post-MVP                                                                                              |
 
 **Stack grounding tools (current session):**
 
@@ -128,9 +128,31 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 3 (pattern for the pure computation functions:
-  aggregation, `computeMarker` threshold/zero-base/first-month, month
-  boundaries).
+Established by Phase 3 (`testing-expense-computation`). Pure functions live in
+`src/lib` (e.g. `src/lib/expenses-summary.ts`); unit tests live in
+`tests/unit/**/*.test.ts`.
+
+- **Runner.** Vitest runs two projects (`vitest.config.ts`): `unit` (node, no
+  DB, no dotenv, parallel) and `integration`. `npm test` runs both; run units
+  alone with `npx vitest run --project unit` — fast, needs no Supabase.
+- **Extract first if needed.** Logic embedded in a React island or an API
+  handler is not unit-testable. Lift the pure computation into an exported
+  `src/lib` function (as the MoM/aggregation logic was extracted from
+  `CategorySummary.tsx` into `expenses-summary.ts`); the component/handler
+  then becomes a thin consumer. A plain `.ts` module keeps React/Recharts out
+  of the unit test's module graph.
+- **Assert from the rule, not the output (avoid the oracle problem).** Pin the
+  documented PRD behaviour with small hand-built fixtures — e.g. strict
+  `>20%` so exactly ±20% yields no marker, `previous = 0` → no marker, empty
+  previous month → no markers. Never copy the function's current output into
+  the expected value; that locks in bugs and can't fail for the right reason.
+- **Characterization tests are separate and labelled.** When you must pin
+  incidental current behaviour (float/cents, rounding artefacts), put it in a
+  clearly-headed `*.characterization.test.ts` stating it asserts current
+  behaviour and is expected to change on an intentional numeric-model change —
+  distinct from the rule-based suite.
+- **Bite-check.** Temporarily break a rule (e.g. `>` → `>=`) and confirm a
+  boundary test fails, so you know the test actually defends the rule.
 
 ### 6.2 Adding an integration test (DB / RLS)
 
@@ -193,6 +215,17 @@ in test `process.env` only, never the `astro:env` schema, so the app keeps
 no RLS-bypass path. Risks #2 (membership/invite integrity) and #3 (delete
 IDOR) remain deferred follow-ups in the same change folder — the §3 row
 stays `implementing` until they ship.
+
+**Phase 3 (`testing-expense-computation`, Risk #6).** Added a Vitest `unit`
+project and pinned the aggregation, strict-`>20%` MoM, zero-base, and
+first-month rules. The rules were already correct — the real work was a
+behavior-preserving refactor extracting the pure functions out of the
+`CategorySummary.tsx` island into `src/lib/expenses-summary.ts` so they're
+reachable by a unit test (incl. a `resolveMarkers` fn folding in the
+first-month gate). The month-boundary/timezone half of Risk #6
+(`toLocalISODate`) was deferred — already fixed in `monthly-comparison` and
+covered by its manual checks — so the §3 row stays `implementing` until that
+sub-scope ships.
 
 ## 7. What We Deliberately Don't Test
 
