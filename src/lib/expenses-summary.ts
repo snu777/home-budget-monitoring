@@ -5,18 +5,19 @@ import type { Expense, ExpenseCategory } from "@/types";
 // island or touching the DB. Behavior is identical to the prior in-component
 // versions — keep it that way (the tests pin the documented rules).
 
-// 9 distinct colors: the 5 chart CSS tokens, plus 4 complementary hues for the
-// remaining categories (there are 9 expense categories).
+// A curated, professional categorical palette (one per expense category, 9
+// total). Emerald-forward to match the app's accent, with distinguishable but
+// restrained hues — no neon — so the donut reads as a finance tool, not a toy.
 const CATEGORY_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-  "#a78bfa",
-  "#f472b6",
-  "#34d399",
-  "#fbbf24",
+  "#10b981", // emerald
+  "#0ea5e9", // sky
+  "#f59e0b", // amber
+  "#8b5cf6", // violet
+  "#f43f5e", // rose
+  "#14b8a6", // teal
+  "#6366f1", // indigo
+  "#fb923c", // orange
+  "#94a3b8", // slate
 ];
 
 // MoM comparison threshold: a category must move by strictly more than 20%

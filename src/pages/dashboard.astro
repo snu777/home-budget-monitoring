@@ -29,29 +29,52 @@ if (supabase) {
 }
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic min-h-screen p-4 text-white">
+<Layout title="Home Budget">
+  <div class="bg-cosmic min-h-screen p-4 text-slate-100 sm:p-6">
     <div class="mx-auto max-w-2xl">
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          Home Budget
-        </h1>
+      <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <span class="text-sm text-blue-100/60">{user.email}</span>
+          <span
+            class="flex size-9 items-center justify-center rounded-xl bg-emerald-600 shadow-lg shadow-emerald-600/20"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-5 text-white"
+              aria-hidden="true"
+            >
+              <path
+                d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"
+              ></path>
+              <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+            </svg>
+          </span>
+          <div>
+            <h1 class="text-lg leading-tight font-semibold text-white">Home Budget</h1>
+            <p class="text-xs text-slate-400">Wspólny budżet domowy</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="hidden text-sm text-slate-400 sm:inline">{user.email}</span>
           <form method="POST" action="/api/auth/signout">
             <button
               type="submit"
-              class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+              class="cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:bg-slate-700"
             >
               Wyloguj
             </button>
           </form>
         </div>
-      </div>
+      </header>
 
       {
         errorMessage && (
-          <div class="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+          <div class="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
             {errorMessage}
           </div>
         )
@@ -60,11 +83,12 @@ if (supabase) {
       {
         !budget ? (
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-              <h2 class="mb-4 text-lg font-semibold">Utwórz nowy budżet</h2>
+            <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-black/20">
+              <h2 class="mb-1 text-lg font-semibold text-white">Utwórz nowy budżet</h2>
+              <p class="mb-4 text-sm text-slate-400">Zacznij i zaproś partnera kodem.</p>
               <form method="POST" action="/api/budgets" class="space-y-4">
                 <div>
-                  <label for="budget-name" class="mb-1 block text-sm text-blue-100/70">
+                  <label for="budget-name" class="mb-1 block text-xs font-medium text-slate-400">
                     Nazwa budżetu
                   </label>
                   <input
@@ -72,23 +96,24 @@ if (supabase) {
                     type="text"
                     name="name"
                     value="Nasz budżet"
-                    class="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/40 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    class="w-full rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-slate-100 placeholder-slate-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  class="w-full rounded-lg bg-purple-600 px-4 py-2 font-semibold transition-colors hover:bg-purple-700"
+                  class="w-full cursor-pointer rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-emerald-500"
                 >
                   Utwórz budżet
                 </button>
               </form>
             </div>
 
-            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-              <h2 class="mb-4 text-lg font-semibold">Dołącz do budżetu</h2>
+            <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-black/20">
+              <h2 class="mb-1 text-lg font-semibold text-white">Dołącz do budżetu</h2>
+              <p class="mb-4 text-sm text-slate-400">Masz kod od partnera? Wpisz go tutaj.</p>
               <form method="POST" action="/api/budgets/join" class="space-y-4">
                 <div>
-                  <label for="invite-code-input" class="mb-1 block text-sm text-blue-100/70">
+                  <label for="invite-code-input" class="mb-1 block text-xs font-medium text-slate-400">
                     Kod zaproszenia
                   </label>
                   <input
@@ -98,12 +123,12 @@ if (supabase) {
                     placeholder="np. A3F2B7C1"
                     required
                     autocomplete="off"
-                    class="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 font-mono text-white uppercase placeholder-white/40 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    class="w-full rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 font-mono tracking-widest text-slate-100 uppercase placeholder-slate-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold transition-colors hover:bg-blue-700"
+                  class="w-full cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 font-semibold text-slate-100 transition-colors hover:bg-slate-700"
                 >
                   Dołącz
                 </button>
@@ -112,20 +137,23 @@ if (supabase) {
           </div>
         ) : (
           <div class="space-y-4">
-            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+            <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 shadow-lg shadow-black/20">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <span class="text-sm text-blue-100/50">Budżet</span>
-                  <h2 class="font-semibold">{budget.name ?? "Nasz budżet"}</h2>
+                  <span class="text-xs tracking-wide text-slate-500 uppercase">Budżet</span>
+                  <h2 class="font-semibold text-white">{budget.name ?? "Nasz budżet"}</h2>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-sm text-blue-100/50">Kod zaproszenia:</span>
-                  <code id="invite-code" class="rounded bg-white/10 px-2 py-0.5 font-mono text-sm">
+                  <span class="text-sm text-slate-400">Kod:</span>
+                  <code
+                    id="invite-code"
+                    class="rounded-md border border-slate-700 bg-slate-950/60 px-2 py-0.5 font-mono text-sm tracking-widest text-emerald-300"
+                  >
                     {budget.invite_code}
                   </code>
                   <button
                     id="copy-invite"
-                    class="rounded border border-white/20 bg-white/10 px-2 py-0.5 text-xs transition-colors hover:bg-white/20"
+                    class="cursor-pointer rounded-md border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs text-slate-200 transition-colors hover:bg-slate-700"
                   >
                     Kopiuj
                   </button>

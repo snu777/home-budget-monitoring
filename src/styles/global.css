@@ -110,8 +110,14 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Professional fintech backdrop: deep slate with a restrained emerald glow at
+   the top so the brand accent reads without the old "cosmic" purple look. */
 @utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
+  background-color: #0b1120;
+  background-image:
+    radial-gradient(70% 55% at 50% -10%, rgba(16, 185, 129, 0.1), transparent 70%),
+    linear-gradient(180deg, #0b1120 0%, #0f172a 55%, #0b1120 100%);
+  background-attachment: fixed;
 }
 
 @layer base {
@@ -120,5 +126,17 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family:
+      "IBM Plex Sans",
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      sans-serif;
+  }
+  /* Tabular figures everywhere money is shown keep columns aligned. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }

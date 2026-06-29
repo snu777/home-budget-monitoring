@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type { Expense, ExpenseCategory } from "@/types";
 import { EXPENSE_CATEGORIES } from "@/types";
 import { formatAmount } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import CategorySummary from "@/components/expenses/CategorySummary";
 import {
   AlertDialog,
@@ -17,6 +18,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const POLL_INTERVAL_MS = 2500;
+
+const CARD = "rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-black/20";
+const FIELD =
+  "w-full rounded-lg border border-slate-700 bg-slate-950/40 px-3 py-2 text-slate-100 placeholder-slate-500 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 focus:outline-none";
+const LABEL = "mb-1 block text-xs font-medium text-slate-400";
 
 interface Props {
   currentUserId: string;
@@ -112,7 +118,7 @@ function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
-          <label htmlFor="exp-amount" className="mb-1 block text-xs text-blue-100/60">
+          <label htmlFor="exp-amount" className={LABEL}>
             Kwota (zł)
           </label>
           <input
@@ -126,11 +132,11 @@ function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
             onChange={(e) => {
               setAmount(e.target.value);
             }}
-            className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-white/30 focus:ring-1 focus:ring-white/30 focus:outline-none"
+            className={cn(FIELD, "tabular-nums")}
           />
         </div>
         <div className="col-span-2 sm:col-span-2">
-          <label htmlFor="exp-category" className="mb-1 block text-xs text-blue-100/60">
+          <label htmlFor="exp-category" className={LABEL}>
             Kategoria
           </label>
           <select
@@ -139,7 +145,7 @@ function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
             onChange={(e) => {
               setCategory(e.target.value as ExpenseCategory);
             }}
-            className="w-full rounded-lg border border-white/20 bg-zinc-900 px-3 py-2 text-white focus:ring-1 focus:ring-white/30 focus:outline-none"
+            className={cn(FIELD, "bg-slate-900")}
           >
             {EXPENSE_CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
@@ -149,7 +155,7 @@ function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
           </select>
         </div>
         <div className="col-span-2 sm:col-span-1">
-          <label htmlFor="exp-date" className="mb-1 block text-xs text-blue-100/60">
+          <label htmlFor="exp-date" className={LABEL}>
             Data
           </label>
           <input
@@ -160,16 +166,17 @@ function AddExpenseForm({ onAdd, onRemove, onConfirm }: AddExpenseFormProps) {
             onChange={(e) => {
               setDate(e.target.value);
             }}
-            className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-1 focus:ring-white/30 focus:outline-none"
+            className={FIELD}
           />
         </div>
       </div>
-      {addError && <p className="text-sm text-red-300">{addError}</p>}
+      {addError && <p className="text-sm text-rose-300">{addError}</p>}
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold transition-colors hover:bg-purple-700 disabled:opacity-50"
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
+        <Plus className="size-4" />
         {submitting ? "Dodawanie…" : "Dodaj wydatek"}
       </button>
     </form>
@@ -280,29 +287,27 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-        <h3 className="mb-4 font-semibold text-blue-100/80">Dodaj wydatek</h3>
+      <div className={CARD}>
+        <h3 className="mb-4 font-semibold text-white">Dodaj wydatek</h3>
         <AddExpenseForm onAdd={handleAdd} onRemove={handleRemove} onConfirm={handleConfirm} />
       </div>
 
       {!(loading && expenses.length === 0) && <CategorySummary expenses={expenses} prevExpenses={prevExpenses} />}
 
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-        <h3 className="mb-4 font-semibold">
-          Wydatki — <span className="font-normal text-blue-100/60 capitalize">{monthLabel}</span>
+      <div className={CARD}>
+        <h3 className="mb-4 font-semibold text-white">
+          Wydatki <span className="font-normal text-slate-400 capitalize">· {monthLabel}</span>
         </h3>
 
         {loading && expenses.length === 0 ? (
-          <p className="text-sm text-blue-100/40">Ładowanie…</p>
+          <p className="text-sm text-slate-500">Ładowanie…</p>
         ) : expenses.length === 0 ? (
-          <p className="text-sm text-blue-100/40">Brak wydatków w tym miesiącu.</p>
+          <p className="text-sm text-slate-500">Brak wydatków w tym miesiącu.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {[...grouped.entries()].map(([dateStr, items]) => (
               <div key={dateStr}>
-                <p className="mb-2 text-xs font-medium tracking-wide text-blue-100/40 uppercase">
-                  {formatDate(dateStr)}
-                </p>
+                <p className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">{formatDate(dateStr)}</p>
                 <div className="space-y-2">
                   {items.map((expense) => {
                     const isOptimistic = expense.created_by === "optimistic";
@@ -311,22 +316,33 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
                     return (
                       <div key={expense.id}>
                         <div
-                          className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-                            isOptimistic ? "bg-white/5 opacity-60" : "bg-white/5"
-                          }`}
+                          className={cn(
+                            "flex items-center justify-between rounded-lg border border-slate-800 bg-slate-800/40 px-3 py-2.5 transition-colors",
+                            isOptimistic ? "opacity-60" : "hover:border-slate-700 hover:bg-slate-800/70",
+                          )}
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-blue-100/40">{isOwn ? "Ty" : "Partner"}</span>
-                            <span className="text-sm">{expense.category}</span>
+                          <div className="flex min-w-0 items-center gap-3">
+                            <span
+                              className={cn(
+                                "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase",
+                                isOwn ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700/50 text-slate-300",
+                              )}
+                            >
+                              {isOwn ? "Ty" : "Partner"}
+                            </span>
+                            <span className="truncate text-sm text-slate-200">{expense.category}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm font-semibold">{formatAmount(expense.amount)}</span>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span className="text-sm font-semibold text-white tabular-nums">
+                              {formatAmount(expense.amount)}
+                            </span>
                             {canDelete && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <button
                                     type="button"
-                                    className="rounded p-1 text-blue-100/30 transition-colors hover:text-red-400"
+                                    aria-label="Usuń wydatek"
+                                    className="cursor-pointer rounded-md p-1.5 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
                                   >
                                     <Trash2 className="size-4" />
                                   </button>
@@ -355,7 +371,7 @@ export default function ExpenseDashboard({ currentUserId }: Props) {
                           </div>
                         </div>
                         {deleteError?.id === expense.id && (
-                          <p className="mt-1 px-3 text-xs text-red-300">{deleteError.message}</p>
+                          <p className="mt-1 px-3 text-xs text-rose-300">{deleteError.message}</p>
                         )}
                       </div>
                     );
