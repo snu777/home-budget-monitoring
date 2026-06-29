@@ -56,7 +56,9 @@ export const GET: APIRoute = async (context) => {
     .order("created_at", { ascending: true });
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Log the raw cause server-side; never leak Postgres/schema text to the client.
+    console.error("expenses GET failed:", error.message);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 
   return Response.json({ expenses });
@@ -128,7 +130,9 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Log the raw cause server-side; never leak Postgres/schema text to the client.
+    console.error("expenses POST failed:", error.message);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 
   return Response.json({ expense }, { status: 201 });
@@ -155,7 +159,9 @@ export const DELETE: APIRoute = async (context) => {
   const { count, error } = await supabase.from("expenses").delete({ count: "exact" }).eq("id", id);
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Log the raw cause server-side; never leak Postgres/schema text to the client.
+    console.error("expenses DELETE failed:", error.message);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 
   if (count === 0) {
