@@ -243,10 +243,10 @@ None — additive tests plus a behavior-preserving error-body change (clients al
 
 #### Automated
 
-- [x] 3.1 Docs format clean: `npm run format` (this change's files prettier-clean; repo-wide pre-existing markdown churn reverted as out-of-scope)
+- [x] 3.1 Docs format clean: `npm run format` (this change's files prettier-clean; repo-wide pre-existing markdown churn reverted as out-of-scope) — 263b59b
 - [ ] 3.2 `npm test` still green (unit + contract = 36 passed; rls-* env-blocked, no regression)
 
 #### Manual
 
-- [x] 3.3 §6.3 reads as a usable contract-test recipe
-- [x] 3.4 §3 Phase 2 row shows `complete`; §6.5 note + form-route follow-up present
+- [x] 3.3 §6.3 reads as a usable contract-test recipe — 263b59b
+- [x] 3.4 §3 Phase 2 row shows `complete`; §6.5 note + form-route follow-up present — 263b59b
