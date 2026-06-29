@@ -17,14 +17,14 @@ Phase 2 of the test rollout proves **Risk #4 — untrusted input + error disclos
 
 ## Key decisions made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| Test mechanism | Direct handler invocation + mock the `@/lib/supabase` edge | Reaches handler-local validation + error paths and sidesteps the `astro:env` blocker; matches §6.3's "mock only the external edge" | Plan |
-| `astro:env` blocker | `vi.mock("@/lib/supabase")` with a factory that never imports the real module | Replacing the module means its `astro:env/server` import never runs | Plan |
-| Leak scope | Assert the three `expenses.ts` JSON 500s; record form-route leaks as a follow-up | The JSON boundary is the contract-testable surface; form routes need redirect parsing and sit near §7 Auth exclusions | Plan |
-| Leak vs assert-clean | Pair with a minimal sanitization fix so the clean-body assertion ships green | Closes the actual vulnerability instead of pinning a known-bad behavior (oracle-problem guardrail) | Plan |
-| DELETE edges | Cover missing/garbage `id` + not-found; accept the 404/forbidden conflation | Covers the untrusted-input angle cheaply; the conflation is intentional RLS-by-design | Plan |
-| Oracle independence | Assert from the PRD rule, never by importing `EXPENSE_CATEGORIES` or the handler regex | Avoids the tautological test that encodes current behavior | Research |
+| Decision             | Choice                                                                                 | Why (1 sentence)                                                                                                                   | Source   |
+| -------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Test mechanism       | Direct handler invocation + mock the `@/lib/supabase` edge                             | Reaches handler-local validation + error paths and sidesteps the `astro:env` blocker; matches §6.3's "mock only the external edge" | Plan     |
+| `astro:env` blocker  | `vi.mock("@/lib/supabase")` with a factory that never imports the real module          | Replacing the module means its `astro:env/server` import never runs                                                                | Plan     |
+| Leak scope           | Assert the three `expenses.ts` JSON 500s; record form-route leaks as a follow-up       | The JSON boundary is the contract-testable surface; form routes need redirect parsing and sit near §7 Auth exclusions              | Plan     |
+| Leak vs assert-clean | Pair with a minimal sanitization fix so the clean-body assertion ships green           | Closes the actual vulnerability instead of pinning a known-bad behavior (oracle-problem guardrail)                                 | Plan     |
+| DELETE edges         | Cover missing/garbage `id` + not-found; accept the 404/forbidden conflation            | Covers the untrusted-input angle cheaply; the conflation is intentional RLS-by-design                                              | Plan     |
+| Oracle independence  | Assert from the PRD rule, never by importing `EXPENSE_CATEGORIES` or the handler regex | Avoids the tautological test that encodes current behavior                                                                         | Research |
 
 ## Scope
 
@@ -38,11 +38,11 @@ Phase 2 of the test rollout proves **Risk #4 — untrusted input + error disclos
 
 ## Phases at a glance
 
-| Phase | Delivers | Key risk |
-| --- | --- | --- |
-| 1. Sanitize 500 bodies | Generic client message + server-side log at the 3 leak sites | A behavior change in production code; keep validation/auth bodies untouched |
-| 2. Contract-test suite | Mock-the-edge mechanism + all Risk #4 assertions, green | Chainable-thenable fake must match the builder surface; mock must not `importActual` |
-| 3. Cookbook + wiring | §6.3 recipe, §6.5 note, §3 → complete, format | Low — documentation + status reconciliation |
+| Phase                  | Delivers                                                     | Key risk                                                                             |
+| ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| 1. Sanitize 500 bodies | Generic client message + server-side log at the 3 leak sites | A behavior change in production code; keep validation/auth bodies untouched          |
+| 2. Contract-test suite | Mock-the-edge mechanism + all Risk #4 assertions, green      | Chainable-thenable fake must match the builder surface; mock must not `importActual` |
+| 3. Cookbook + wiring   | §6.3 recipe, §6.5 note, §3 → complete, format                | Low — documentation + status reconciliation                                          |
 
 **Prerequisites:** none beyond the existing Vitest harness (the suite is fully mocked — no `npx supabase start` needed). Phases 1 and 3 of the rollout already complete.
 **Estimated effort:** ~1 session across 3 phases; Phase 2 is the bulk.

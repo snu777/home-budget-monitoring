@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-08 (Phase 1 → implementing: Risk #1 shipped; Phase 3 → implementing: Risk #6 unit suite shipped)
+> Last updated: 2026-06-29 (Phase 2 → complete: API input + error-boundary contract suite shipped, 500 bodies sanitized; next pending: Phase 4 — sync behaviour)
 
 ## 1. Strategy
 
@@ -75,13 +75,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                          | Goal (one line)                                                                                                                      | Risks covered | Test types                    | Status       | Change folder                                  |
-| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ----------------------------- | ------------ | ---------------------------------------------- |
-| 1   | Test runner + RLS authorization     | Stand up Vitest + a local-Supabase integration harness and prove cross-couple isolation and membership integrity on all three tables | #1, #2, #3    | integration (DB), concurrency | implementing | `context/changes/testing-rls-authorization/`   |
-| 2   | API input + error-boundary contract | Prove server-side validation is enforced regardless of client and that error responses leak no schema text                           | #4            | integration / contract        | not started  | —                                              |
-| 3   | Expense computation correctness     | Prove aggregation, the MoM rules, and month-boundary windows are exact at the cheapest deterministic layer                           | #6            | unit                          | implementing | `context/changes/testing-expense-computation/` |
-| 4   | Sync behaviour                      | Prove optimistic add/delete, polling, and 401 handling behave under races                                                            | #5            | component (RTL)               | not started  | —                                              |
-| 5   | Quality-gate wiring                 | Lock the floor: add a test step to CI so the new suites block regressions                                                            | cross-cutting | gates                         | not started  | —                                              |
+| #   | Phase name                          | Goal (one line)                                                                                                                      | Risks covered | Test types                    | Status      | Change folder                                  |
+| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------- | ----------------------------- | ----------- | ---------------------------------------------- |
+| 1   | Test runner + RLS authorization     | Stand up Vitest + a local-Supabase integration harness and prove cross-couple isolation and membership integrity on all three tables | #1, #2, #3    | integration (DB), concurrency | complete    | `context/changes/testing-rls-authorization/`   |
+| 2   | API input + error-boundary contract | Prove server-side validation is enforced regardless of client and that error responses leak no schema text                           | #4            | integration / contract        | complete    | `context/changes/testing-api-contract/`        |
+| 3   | Expense computation correctness     | Prove aggregation, the MoM rules, and month-boundary windows are exact at the cheapest deterministic layer                           | #6            | unit                          | complete    | `context/changes/testing-expense-computation/` |
+| 4   | Sync behaviour                      | Prove optimistic add/delete, polling, and 401 handling behave under races                                                            | #5            | component (RTL)               | not started | —                                              |
+| 5   | Quality-gate wiring                 | Lock the floor: add a test step to CI so the new suites block regressions                                                            | cross-cutting | gates                         | not started | —                                              |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -192,9 +192,36 @@ Established by Phase 1 (`testing-rls-authorization`). Tests live in
 
 ### 6.3 Adding a test for a new API endpoint
 
-- TBD — see §3 Phase 2 (pattern for request → response shape AND
-  side-effects, with server-side validation and clean error bodies; mock
-  only the external edge).
+Established by Phase 2 (`testing-api-contract`). Contract tests for JSON API
+routes (`src/pages/api/**`) live in `tests/integration/**/*.test.ts`; shared
+scaffolding in `tests/integration/helpers/api-context.ts`. They run in the
+`integration` project but, unlike the RLS suite, need **no** local Supabase —
+they mock the external edge.
+
+- **Mechanism — invoke the handler, mock only the edge.** Import the route's
+  `GET`/`POST`/`DELETE` exports and call them with a hand-built context from
+  `makeContext({ method, body | rawBody, searchParams })`. `vi.mock("@/lib/supabase")`
+  replaces the SSR client factory with one returning a scriptable fake — this is
+  also what sidesteps the `astro:env/server` blocker, since replacing the module
+  means its virtual-module import never runs. **The mock factory must not call
+  `importActual`** (that re-triggers the import). Use `vi.hoisted` for the
+  mutable client slot so the mock is set up before the handler import.
+- **Script the fake per test.** `makeFakeSupabase({ user, membership,
+expensesSelect, expensesInsert, expensesDelete })` controls auth state and each
+  query's `{ data, error, count }`. Set the client to `null` to exercise the
+  unauthenticated (401) path. `captured.insertedExpense` exposes the insert
+  payload for assertions (e.g. cent-rounding).
+- **Assert from the rule, not the implementation (oracle problem).** Validation
+  expectations come from the PRD (amount `> 0` / `≤ 1,000,000` / cent precision;
+  category from the predefined list — use literal good/bad values, never import
+  `EXPENSE_CATEGORIES` or the handler's regex; strict `YYYY-MM-DD`).
+- **Force errors to test the error boundary.** Drive a query's `error` to a
+  realistic raw PostgREST message and assert the 5xx body is generic with **no**
+  schema/constraint/column text — the security half of Risk #4. This is the
+  contract, independent of the current string.
+- **Bite-check.** Flip a validation boundary (`<= 0` → `< 0`) or re-introduce
+  `error.message` into a 500 body and confirm a test fails, so the suite
+  actually defends the rule.
 
 ### 6.4 Adding a component / sync test
 
@@ -226,6 +253,22 @@ first-month gate). The month-boundary/timezone half of Risk #6
 (`toLocalISODate`) was deferred — already fixed in `monthly-comparison` and
 covered by its manual checks — so the §3 row stays `implementing` until that
 sub-scope ships.
+
+**Phase 2 (`testing-api-contract`, Risk #4).** Added contract tests for the
+`expenses` JSON API plus a reusable route-handler harness
+(`tests/integration/helpers/api-context.ts`: a scriptable fake Supabase client +
+`makeContext`). Surprises/decisions: (1) the `astro:env/server` blocker that
+forced plain `@supabase/supabase-js` in Phase 1 is dodged differently here —
+`vi.mock("@/lib/supabase")` (no `importActual`) means the real factory and its
+virtual-module import never load, so the handler runs in Node with a mocked
+edge; (2) input validation was already solid, so the real work was the **error
+boundary** — the three 500 paths leaked raw `error.message`, now sanitized to a
+generic body with the cause logged server-side (mirrors `budgets/join.ts`).
+**Deferred follow-up:** the form-route redirect leaks remain unsanitized and
+untested — `budgets.ts` and the auth routes `signin.ts`/`signup.ts` still echo
+raw `error.message` into a `302 ?error=` query string (vs. the sanitized
+`join.ts`). Out of scope here (JSON boundary only; auth routes border §7 Auth
+internals); revisit if those routes surface sensitive errors.
 
 ## 7. What We Deliberately Don't Test
 

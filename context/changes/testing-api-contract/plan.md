@@ -7,7 +7,7 @@ Phase 2 of the test rollout (`context/foundation/test-plan.md` §3). Prove **Ris
 ## Current State Analysis
 
 - `src/pages/api/expenses.ts` validates every POST field server-side with inline `typeof`/regex checks (no zod), independent of the React form: amount type + bounds (`:97-102`), sub-cent rounding (`:105`), category allow-list vs `EXPENSE_CATEGORIES` (`:107-109`), strict `YYYY-MM-DD` + real-date check (`:111-116`), JSON-parse guard (`:88-93`). **This half is already correct** — tests pin it, they don't fix it.
-- **Three raw `error.message` → 500 leak sites:** GET `:58-60`, POST `:130-132`, DELETE `:157-159`. Each returns `Response.json({ error: error.message }, { status: 500 })`. PostgREST embeds constraint/column/schema text in `.message`, so this is a real disclosure path. This is the half Phase 1 of *this* plan fixes.
+- **Three raw `error.message` → 500 leak sites:** GET `:58-60`, POST `:130-132`, DELETE `:157-159`. Each returns `Response.json({ error: error.message }, { status: 500 })`. PostgREST embeds constraint/column/schema text in `.message`, so this is a real disclosure path. This is the half Phase 1 of _this_ plan fixes.
 - DELETE: missing `id` → 400 (`:151-153`); not-found and RLS-forbidden both → 404 via `count === 0` (`:161-163`, intentional RLS-by-design); `id` passed to `.eq("id", id)` with no UUID validation → malformed id surfaces as a DB error → 500 leak.
 - **No existing pattern for invoking an Astro route handler** in `tests/` (research §4 — zero matches for `APIRoute`/mock context). The blocker is `src/lib/supabase.ts:3` importing `astro:env/server`, unresolvable in the Node Vitest project.
 - Harness is fixed: two-project Vitest (`vitest.config.ts`), integration tests under `tests/integration/**`, serial, `Promise.allSettled` teardown, timestamp-unique IDs (research §2-3).
@@ -18,7 +18,7 @@ Phase 2 of the test rollout (`context/foundation/test-plan.md` §3). Prove **Ris
 - Handler client surface to fake (`expenses.ts`): `client.auth.getUser()` → `{ data: { user } }`; `client.from(t).select().eq().maybeSingle()` → `{ data }`; `client.from(t).select().gte().lte().order().order()` → `{ data, error }` (awaited builder); `client.from(t).insert().select().single()` → `{ data, error }`; `client.from(t).delete({count}).eq()` → `{ count, error }`.
 - `expenses.ts` imports only `@/lib/supabase` (to be mocked) and `@/types` (a side-effect-free const array) — so mocking `@/lib/supabase` means the real module, and its `astro:env/server` import, is never evaluated.
 - Sanitization precedent: `src/pages/api/budgets/join.ts:6-10,36-39` maps error codes to safe messages with a generic fallback — the "what good looks like" reference.
-- `EXPENSE_CATEGORIES` (`src/types.ts:7-17`) is the independent validation oracle — assert *category membership from the PRD rule*, never by importing the handler's own check.
+- `EXPENSE_CATEGORIES` (`src/types.ts:7-17`) is the independent validation oracle — assert _category membership from the PRD rule_, never by importing the handler's own check.
 
 ## Desired End State
 
@@ -102,6 +102,7 @@ Add the route-handler test mechanism and the Risk #4 assertions. This is the bul
 **Purpose**: Assert Risk #4 on `expenses.ts`. `vi.mock("@/lib/supabase", () => ({ createClient: vi.fn(() => currentFake) }))` (hoisted; no `importActual`). Import `GET`/`POST`/`DELETE` from `@/pages/api/expenses`. Each test scripts the fake, builds a context, invokes the handler, asserts status + parsed JSON body.
 
 **Contract**: Assertions, each derived from the PRD/business rule (the oracle), not from the handler's own checks:
+
 - **Validation (POST), authed + member:** amount non-number → 400; amount `<= 0` → 400; amount `> 1_000_000` → 400; a valid sub-cent amount is accepted and rounded to 2 dp in the inserted payload (assert the value passed to the fake `insert`); category not in the PRD's 9-value list → 400 (use a literal bad value, e.g. `"NotACategory"`, never `EXPENSE_CATEGORIES`); malformed date (`"2026-13-40"`, `"not-a-date"`, missing) → 400; non-JSON body → 400.
 - **Error disclosure:** force the `expenses` terminal await to return `{ error: { message: "duplicate key value violates unique constraint \"expenses_pkey\"" } }`; assert status 500 AND the body does **not** contain `"constraint"`, `"violates"`, or the raw message — only the generic string. Cover GET, POST, DELETE.
 - **Auth/authorization gates:** `createClient` → null ⇒ 401; `getUser()` → no user ⇒ 401; no membership ⇒ POST 403, GET `{ expenses: [] }`.
@@ -171,12 +172,15 @@ Document the new pattern so the next contributor can reuse it, and reconcile rol
 ## Testing Strategy
 
 ### Unit tests:
+
 - None added — Risk #4 is boundary logic, not pure functions. (Pure-function correctness is Phase 3 of the rollout, already complete.)
 
 ### Integration / contract tests:
+
 - `tests/integration/expenses-api-contract.test.ts` — the validation matrix, clean-error-body, auth gates, and DELETE id edges described in Phase 2, via the mocked edge.
 
 ### Manual testing steps:
+
 1. Run `npm test`; confirm the new suite passes alongside the existing unit + RLS integration suites.
 2. Temporarily re-add `error.message` to one 500 body; confirm the matching disclosure test fails (bite check); revert.
 3. In the running app, trigger a server error path if feasible and confirm the client sees a generic message.
@@ -212,7 +216,7 @@ None — additive tests plus a behavior-preserving error-body change (clients al
 - [x] 1.1 Type-check passes: `npx astro sync && npx tsc --noEmit` — ffc1e58
 - [x] 1.2 Lint passes: `npm run lint` — ffc1e58
 - [x] 1.3 Production build succeeds: `npm run build` — ffc1e58
-- [ ] 1.4 Existing suites still green: `npm test` (skipped — local Supabase unavailable; change cannot affect rls-* tests)
+- [ ] 1.4 Existing suites still green: `npm test` (skipped — local Supabase unavailable; change cannot affect rls-\* tests)
 
 #### Manual
 
@@ -223,26 +227,26 @@ None — additive tests plus a behavior-preserving error-body change (clients al
 
 #### Automated
 
-- [ ] 2.1 `npm test` runs both projects green (unit + integration) (skipped — rls-* need local Supabase; unit + new contract suite = 36 passed, no regression)
-- [x] 2.2 New suite green in isolation: `npx vitest run tests/integration/expenses-api-contract.test.ts`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 Type-check passes: `npx tsc --noEmit`
-- [x] 2.5 Bite check (validation): flipping a boundary operator makes a test fail
-- [x] 2.6 Bite check (disclosure): re-introducing `error.message` into a 500 body makes a test fail
+- [ ] 2.1 `npm test` runs both projects green (unit + integration) (skipped — rls-\* need local Supabase; unit + new contract suite = 36 passed, no regression)
+- [x] 2.2 New suite green in isolation: `npx vitest run tests/integration/expenses-api-contract.test.ts` — 0afdbdb
+- [x] 2.3 Lint passes: `npm run lint` — 0afdbdb
+- [x] 2.4 Type-check passes: `npx tsc --noEmit` — 0afdbdb
+- [x] 2.5 Bite check (validation): flipping a boundary operator makes a test fail — 0afdbdb
+- [x] 2.6 Bite check (disclosure): re-introducing `error.message` into a 500 body makes a test fail — 0afdbdb
 
 #### Manual
 
-- [x] 2.7 Fake-client + context helper reads as reusable scaffolding
-- [x] 2.8 No test imports `EXPENSE_CATEGORIES` or the handler regex (oracle independence)
+- [x] 2.7 Fake-client + context helper reads as reusable scaffolding — 0afdbdb
+- [x] 2.8 No test imports `EXPENSE_CATEGORIES` or the handler regex (oracle independence) — 0afdbdb
 
 ### Phase 3: Cookbook + wiring
 
 #### Automated
 
-- [ ] 3.1 Docs format clean: `npm run format`
-- [ ] 3.2 `npm test` still green
+- [x] 3.1 Docs format clean: `npm run format` (this change's files prettier-clean; repo-wide pre-existing markdown churn reverted as out-of-scope)
+- [ ] 3.2 `npm test` still green (unit + contract = 36 passed; rls-* env-blocked, no regression)
 
 #### Manual
 
-- [ ] 3.3 §6.3 reads as a usable contract-test recipe
-- [ ] 3.4 §3 Phase 2 row shows `complete`; §6.5 note + form-route follow-up present
+- [x] 3.3 §6.3 reads as a usable contract-test recipe
+- [x] 3.4 §3 Phase 2 row shows `complete`; §6.5 note + form-route follow-up present

@@ -34,7 +34,7 @@ anti-pattern.
 ## Summary
 
 The risk is **real and confirmed**, but it splits cleanly into two halves that
-live in two different route *shapes*:
+live in two different route _shapes_:
 
 1. **Input validation (the "untrusted input" half) — already strong, JSON API.**
    `src/pages/api/expenses.ts` validates every field server-side with inline
@@ -56,12 +56,12 @@ live in two different route *shapes*:
 
 **Cheapest useful layer & the central constraint.** Risk #4's behavior
 (validation + error-body shape) is **app-layer logic in the handler**, not RLS,
-so — unlike Phase 1 — mocking the external edge is *defensible here*. There is
+so — unlike Phase 1 — mocking the external edge is _defensible here_. There is
 **no existing pattern in `tests/` for invoking an Astro route handler**, and the
 established blocker is that `src/lib/supabase.ts` imports `astro:env/server`,
 which Vitest cannot resolve in the node project. The cookbook slot reserved for
-this phase (test-plan §6.3) already prescribes the resolution: *"mock only the
-external edge."* That is the key planning decision (see Open Questions).
+this phase (test-plan §6.3) already prescribes the resolution: _"mock only the
+external edge."_ That is the key planning decision (see Open Questions).
 
 ## Detailed Findings
 
@@ -74,6 +74,7 @@ from `EXPENSE_CATEGORIES` in `src/types.ts:7-17` (9 Polish enum values mirroring
 the Postgres `expense_category` enum).
 
 **POST validation (server-side, independent of client):**
+
 - JSON-parse guard → `400 "Invalid JSON"` (`expenses.ts:88-95`).
 - amount: `typeof !== "number" || amount <= 0` → `400 "Invalid amount"`
   (`:97-99`); `amount > 1_000_000` → `400 "Amount too large"` (`:100-102`);
@@ -93,6 +94,7 @@ reachable by a non-JSON caller. Worth a note, not a priority assertion.
 
 **Error disclosure (the core of the risk):** raw `error.message` returned with
 `500` in all three handlers:
+
 - GET `expenses.ts:58-60`
 - POST `expenses.ts:130-132`
 - DELETE `expenses.ts:157-159`
@@ -127,7 +129,7 @@ not JSON APIs. None set explicit status codes; all communicate via
   - `signin.ts:17-19` — raw Supabase auth `error.message` into `/auth/signin?error=`; email/password read via unchecked `as string` cast, no presence/shape check (`signin.ts:7-9`).
   - `signup.ts:17-19` — same pattern (`signup.ts:7-9`).
 - **Sanitized counter-example:** `budgets/join.ts` maps `error.message` (used only
-  as a lookup *key*) through `ERROR_MESSAGES` (`join.ts:6-10`) with a generic
+  as a lookup _key_) through `ERROR_MESSAGES` (`join.ts:6-10`) with a generic
   fallback (`join.ts:36-39`), leaking nothing. Invite code is presence-checked
   (`join.ts:26-30`) but has no format/length validation.
 - `signout.ts` consumes no input and inspects no error (`signout.ts:8-11`).
@@ -138,6 +140,7 @@ malformed `formData()`) surfaces as a framework-level 500, not a hand-built body
 ### Area 3 — Test harness & how to attach Phase 2
 
 **Two-project Vitest** (`vitest.config.ts`), one `npm test` (`package.json:13`):
+
 - `unit` (`:16-23`): node env, `tests/unit/**/*.test.ts`, no setup, parallel.
 - `integration` (`:24-38`): node env, `tests/integration/**/*.test.ts`,
   `setupFiles: ["./tests/setup/load-env.ts"]`, `fileParallelism: false` (serial),
@@ -156,7 +159,7 @@ Timestamp-suffixed identities avoid collisions and the local
 
 **No route-handler test pattern exists.** A `tests/` sweep for `pages/api`,
 `APIRoute`, `APIContext`, `new Request`, mock context, bare `GET(`/`POST(` →
-**zero matches**. Routes are currently exercised only *indirectly* via the live
+**zero matches**. Routes are currently exercised only _indirectly_ via the live
 Supabase client against the RLS boundary. Filling this gap is Phase 2's job.
 
 ## Code References
@@ -190,16 +193,16 @@ Supabase client against the RLS boundary. Filling this gap is Phase 2's job.
 - **The codebase already contains both the anti-pattern and its fix.** Raw
   passthrough (`expenses.ts`, `budgets.ts`, auth) vs. the sanitized
   `ERROR_MESSAGES` map (`join.ts`). The contract test's "what good looks like" is
-  literally `join.ts`'s convention. This also implies a likely *implementation*
+  literally `join.ts`'s convention. This also implies a likely _implementation_
   follow-up (sanitize the `expenses.ts` 500 bodies) — but Phase 2 is a **test**
   phase; tests should pin the leak as a failing/known risk per the rule, not
   silently encode current behavior (oracle problem).
 - **Validation is hand-rolled, not zod** — contradicts CLAUDE.md "validate with
-  zod." The test must assert *from the PRD/business rule* (reject `≤ 0`,
+  zod." The test must assert _from the PRD/business rule_ (reject `≤ 0`,
   `> 1_000_000`, sub-cent, bad category, malformed date), **not** by importing or
   mirroring the handler's regex/conditionals.
 - **Mock-the-edge is sanctioned for this risk specifically.** Phase 1 forbade
-  mocking the Supabase client because RLS *is* the thing under test. Risk #4's
+  mocking the Supabase client because RLS _is_ the thing under test. Risk #4's
   thing-under-test is handler-local validation + error shaping, so test-plan §6.3
   explicitly allows "mock only the external edge" — i.e. stub the
   `astro:env`/`createClient` boundary, drive the handler with a real `Request`,
@@ -237,21 +240,21 @@ Supabase client against the RLS boundary. Filling this gap is Phase 2's job.
      `expenses.ts`, pass a mock `APIContext` (`new Request(...)`, cookies, url),
      and **mock the external edge** (`@/lib/supabase` `createClient` →
      a fake returning a controllable `{ data, error }`). Reaches the validation
-     block and the `error.message`-return paths directly; lets a test *force* a
+     block and the `error.message`-return paths directly; lets a test _force_ a
      DB `error` to assert the 500 body. Requires solving the `astro:env` import
      (mock `@/lib/supabase`, or refactor `createClient` to be injectable). This is
      what §6.3 prescribes and is the recommended path.
    - **(b) Live integration only** — cannot reach handler-local validation (it
      isn't in the DB), so it cannot cover the validation half. Insufficient alone.
-   Decision belongs in `/10x-plan`; research recommends **(a)**.
+     Decision belongs in `/10x-plan`; research recommends **(a)**.
 2. **Scope of the error-disclosure assertion.** Do we cover only the JSON `500`
    leaks (`expenses.ts:59,131,158`), or also the form-route redirect leaks
    (`budgets.ts:25`, `signin.ts:18`, `signup.ts:18`)? The auth-route input
-   validation is out of scope (§7 Auth internals), but the *disclosure* on those
+   validation is out of scope (§7 Auth internals), but the _disclosure_ on those
    redirects is app-layer. Recommend: prioritize `expenses.ts` JSON `500` bodies;
    treat form-redirect leaks as a documented secondary (or a noted follow-up).
-3. **Pin-the-leak vs. assert-clean.** The 500 bodies currently *do* leak. A
-   correct Risk #4 test asserts the *desired* contract (no schema/internal text)
+3. **Pin-the-leak vs. assert-clean.** The 500 bodies currently _do_ leak. A
+   correct Risk #4 test asserts the _desired_ contract (no schema/internal text)
    — which means it may **fail against current code**, correctly flagging the leak
    rather than encoding it. Plan must decide: ship a failing/`.todo` test that
    documents the gap, or pair Phase 2 with a small sanitization fix to
