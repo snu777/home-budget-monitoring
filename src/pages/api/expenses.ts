@@ -138,6 +138,75 @@ export const POST: APIRoute = async (context) => {
   return Response.json({ expense }, { status: 201 });
 };
 
+export const PUT: APIRoute = async (context) => {
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const id = context.url.searchParams.get("id");
+  if (!id) {
+    return Response.json({ error: "Missing expense id" }, { status: 400 });
+  }
+
+  let body: { amount?: unknown; category?: unknown; expense_date?: unknown };
+  try {
+    body = (await context.request.json()) as typeof body;
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { amount, category, expense_date } = body;
+
+  // Same server-side contract as POST — never trust the client (Risk #4).
+  if (typeof amount !== "number" || amount <= 0) {
+    return Response.json({ error: "Invalid amount" }, { status: 400 });
+  }
+  if (amount > 1_000_000) {
+    return Response.json({ error: "Amount too large" }, { status: 400 });
+  }
+  const safeAmount = Math.round(amount * 100) / 100;
+
+  if (typeof category !== "string" || !EXPENSE_CATEGORIES.includes(category as ExpenseCategory)) {
+    return Response.json({ error: "Invalid category" }, { status: 400 });
+  }
+
+  if (typeof expense_date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(expense_date)) {
+    return Response.json({ error: "Invalid date" }, { status: 400 });
+  }
+  if (isNaN(new Date(expense_date).getTime())) {
+    return Response.json({ error: "Invalid date" }, { status: 400 });
+  }
+
+  // RLS (`expenses_update_own`) scopes the row set to the caller's own expenses,
+  // so an UPDATE targeting another user's / another budget's id simply matches
+  // no rows — `.select()` then returns an empty array, which we treat as 404.
+  const { data, error } = await supabase
+    .from("expenses")
+    .update({ amount: safeAmount, category: category as ExpenseCategory, expense_date })
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    // Log the raw cause server-side; never leak Postgres/schema text to the client.
+    console.error("expenses PUT failed:", error.message);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+
+  if (data.length === 0) {
+    return Response.json({ error: "Expense not found" }, { status: 404 });
+  }
+
+  return Response.json({ expense: data[0] });
+};
+
 export const DELETE: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {

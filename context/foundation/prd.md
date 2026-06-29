@@ -70,6 +70,8 @@ Per-category expense summary for the current month (e.g. Food: $200, Transport: 
   > Socratic: Counter-argument considered: "a list without filters becomes hard to read at 30–50 entries per month." Resolution: retained as must-have; readability at scale goes to Open Questions.
 - FR-007: User can delete their own expense after a confirmation step. Priority: must-have
   > Socratic: No counter-argument — deletion with confirmation is the minimum correction mechanism without the complexity of an edit flow.
+- FR-009: User can edit their own expense (amount, category, date) in place. Priority: must-have
+  > Socratic: Counter-argument considered: "delete-and-re-add is enough." Resolution: in-place edit added to complete the CRUD surface; ownership is enforced in the DB (RLS `expenses_update_own`), not only in the UI.
 
 ### Summary
 - FR-008: User can view a per-category expense summary for the current month. Priority: nice-to-have
@@ -101,7 +103,7 @@ Authentication: email + password. Each partner registers their own account separ
 
 - No bank integration: expenses are entered manually — automatic import from bank accounts or payment apps is out of scope.
 - No budget planning: the app tracks actual spending only — no monthly limits or plan-vs-actual comparison.
-- No expense editing: to correct a mistake, the user deletes the entry and re-adds it — no in-place edit form.
+- (Removed non-goal) Expense editing is now in scope — see FR-009. In-place edit of an own expense (amount, category, date) is supported; ownership is enforced at the database via RLS.
 - No history beyond two months: the month-over-month comparison rule requires the current and previous month; older data is not shown in MVP.
 
 ## Open Questions

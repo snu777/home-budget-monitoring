@@ -22,7 +22,7 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 // vi.mock is hoisted above this import, so the handler binds to the mocked factory.
-import { DELETE, GET, POST } from "@/pages/api/expenses";
+import { DELETE, GET, POST, PUT } from "@/pages/api/expenses";
 
 interface ParsedBody {
   error?: string;
@@ -228,5 +228,70 @@ describe("DELETE /api/expenses — untrusted id input", () => {
     );
     expect(status).toBe(200);
     expect(body.success).toBe(true);
+  });
+});
+
+describe("PUT /api/expenses — edit own expense (CRUD Update)", () => {
+  const ID = "11111111-1111-1111-1111-111111111111";
+
+  it("returns 400 when the id query param is missing", async () => {
+    useSupabase();
+    const { status, body } = await call(PUT, makeContext({ method: "PUT", body: validExpense() }));
+    expect(status).toBe(400);
+    expect(body.error).toBe("Missing expense id");
+  });
+
+  it("enforces the same input contract as POST (regardless of client)", async () => {
+    useSupabase();
+    const cases: [Record<string, unknown>, string][] = [
+      [{ amount: "50" }, "Invalid amount"],
+      [{ amount: 0 }, "Invalid amount"],
+      [{ amount: 1_000_001 }, "Amount too large"],
+      [{ category: "NotACategory" }, "Invalid category"],
+      [{ expense_date: "2026-13-40" }, "Invalid date"],
+    ];
+    for (const [override, expected] of cases) {
+      const { status, body } = await call(
+        PUT,
+        makeContext({ method: "PUT", searchParams: { id: ID }, body: validExpense(override) }),
+      );
+      expect(status).toBe(400);
+      expect(body.error).toBe(expected);
+    }
+  });
+
+  // Risk #3 (IDOR), Update variant: RLS scopes the UPDATE to the caller's own
+  // rows, so editing another user's / another budget's expense matches no rows.
+  // A clean 404 — not a 200 — must come back, and nothing is disclosed.
+  it("returns 404 when the update matches no row (not owned / not found)", async () => {
+    useSupabase({ expensesUpdate: { data: [], error: null } });
+    const { status, body } = await call(
+      PUT,
+      makeContext({ method: "PUT", searchParams: { id: ID }, body: validExpense() }),
+    );
+    expect(status).toBe(404);
+    expect(body.error).toBe("Expense not found");
+  });
+
+  it("updates an owned row and rounds the amount to cents before write", async () => {
+    const fake = useSupabase({ expensesUpdate: { data: [{ id: ID }], error: null } });
+    const { status, body } = await call(
+      PUT,
+      makeContext({ method: "PUT", searchParams: { id: ID }, body: validExpense({ amount: 7.128 }) }),
+    );
+    expect(status).toBe(200);
+    expect(body.expense).toBeDefined();
+    expect(fake.captured.updatedExpense?.amount).toBe(7.13);
+  });
+
+  it("masks a DB error behind a generic 500", async () => {
+    useSupabase({ expensesUpdate: { data: null, error: { message: 'violates constraint "expenses_pkey"' } } });
+    const { status, body } = await call(
+      PUT,
+      makeContext({ method: "PUT", searchParams: { id: ID }, body: validExpense() }),
+    );
+    expect(status).toBe(500);
+    expect(body.error).toBe("Internal server error");
+    expect(JSON.stringify(body)).not.toContain("constraint");
   });
 });

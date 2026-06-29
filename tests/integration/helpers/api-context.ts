@@ -27,6 +27,8 @@ export interface SupabaseScript {
   expensesSelect?: QueryResult;
   /** POST `expenses` insert resolution (`.single()`). */
   expensesInsert?: QueryResult;
+  /** PUT `expenses` update resolution (`.select()` → `data` array). */
+  expensesUpdate?: QueryResult;
   /** DELETE `expenses` resolution (with `count`). */
   expensesDelete?: QueryResult;
 }
@@ -38,6 +40,7 @@ interface FakeBuilder {
   lte: () => FakeBuilder;
   order: () => FakeBuilder;
   insert: (payload: Record<string, unknown>) => FakeBuilder;
+  update: (payload: Record<string, unknown>) => FakeBuilder;
   delete: () => FakeBuilder;
   single: () => Promise<QueryResult>;
   maybeSingle: () => Promise<QueryResult>;
@@ -52,8 +55,8 @@ export interface FakeClient {
 export interface FakeSupabase {
   /** Pass as the value the mocked `createClient` returns (or set to `null` for the 401 path). */
   client: FakeClient;
-  /** Captures the payload handed to `expenses.insert(...)` so tests can assert rounding etc. */
-  captured: { insertedExpense?: Record<string, unknown> };
+  /** Captures payloads handed to `expenses.insert(...)` / `.update(...)` so tests can assert rounding etc. */
+  captured: { insertedExpense?: Record<string, unknown>; updatedExpense?: Record<string, unknown> };
 }
 
 /**
@@ -62,7 +65,7 @@ export interface FakeSupabase {
  * for `budget_members` and `expenses`.
  */
 export function makeFakeSupabase(script: SupabaseScript = {}): FakeSupabase {
-  const captured: { insertedExpense?: Record<string, unknown> } = {};
+  const captured: { insertedExpense?: Record<string, unknown>; updatedExpense?: Record<string, unknown> } = {};
   const user = script.user === undefined ? { id: "user-1" } : script.user;
   const membership = script.membership === undefined ? { budget_id: "budget-1" } : script.membership;
 
@@ -71,11 +74,12 @@ export function makeFakeSupabase(script: SupabaseScript = {}): FakeSupabase {
       getUser: () => Promise.resolve({ data: { user }, error: null }),
     },
     from(table: string): FakeBuilder {
-      let op: "select" | "insert" | "delete" = "select";
+      let op: "select" | "insert" | "update" | "delete" = "select";
 
       const result = (): QueryResult => {
         if (table === "budget_members") return { data: membership, error: null };
         if (op === "insert") return script.expensesInsert ?? { data: { id: "exp-1" }, error: null };
+        if (op === "update") return script.expensesUpdate ?? { data: [{ id: "exp-1" }], error: null };
         if (op === "delete") return script.expensesDelete ?? { count: 1, error: null };
         return script.expensesSelect ?? { data: [], error: null };
       };
@@ -89,6 +93,11 @@ export function makeFakeSupabase(script: SupabaseScript = {}): FakeSupabase {
         insert: (payload: Record<string, unknown>) => {
           op = "insert";
           if (table === "expenses") captured.insertedExpense = payload;
+          return builder;
+        },
+        update: (payload: Record<string, unknown>) => {
+          op = "update";
+          if (table === "expenses") captured.updatedExpense = payload;
           return builder;
         },
         delete: () => {
