@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // .tool_response.filePath // empty'); case \"$f\" in *.ts|*.tsx|*.astro|*.js|*.jsx|*.mjs) npx eslint \"$f\" >&2 || exit 2;; esac",
+            "statusMessage": "Linting edited file...",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // .tool_response.filePath // empty'); case \"$f\" in *.ts|*.tsx|*.astro) npx astro sync >/dev/null 2>&1; npx tsc --noEmit >&2 || exit 2;; esac",
+            "statusMessage": "Type-checking project...",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
