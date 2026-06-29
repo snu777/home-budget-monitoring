@@ -209,31 +209,31 @@ None — additive tests plus a behavior-preserving error-body change (clients al
 
 #### Automated
 
-- [x] 1.1 Type-check passes: `npx astro sync && npx tsc --noEmit`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Production build succeeds: `npm run build`
-- [ ] 1.4 Existing suites still green: `npm test`
+- [x] 1.1 Type-check passes: `npx astro sync && npx tsc --noEmit` — ffc1e58
+- [x] 1.2 Lint passes: `npm run lint` — ffc1e58
+- [x] 1.3 Production build succeeds: `npm run build` — ffc1e58
+- [ ] 1.4 Existing suites still green: `npm test` (skipped — local Supabase unavailable; change cannot affect rls-* tests)
 
 #### Manual
 
-- [x] 1.5 Dashboard add/list/delete still works; forced DB error shows generic message
-- [x] 1.6 No `error.message` in any `Response.json` body in `expenses.ts`
+- [x] 1.5 Dashboard add/list/delete still works; forced DB error shows generic message — ffc1e58
+- [x] 1.6 No `error.message` in any `Response.json` body in `expenses.ts` — ffc1e58
 
 ### Phase 2: Contract-test suite (mock the edge)
 
 #### Automated
 
-- [ ] 2.1 `npm test` runs both projects green (unit + integration)
-- [ ] 2.2 New suite green in isolation: `npx vitest run tests/integration/expenses-api-contract.test.ts`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 Type-check passes: `npx tsc --noEmit`
-- [ ] 2.5 Bite check (validation): flipping a boundary operator makes a test fail
-- [ ] 2.6 Bite check (disclosure): re-introducing `error.message` into a 500 body makes a test fail
+- [ ] 2.1 `npm test` runs both projects green (unit + integration) (skipped — rls-* need local Supabase; unit + new contract suite = 36 passed, no regression)
+- [x] 2.2 New suite green in isolation: `npx vitest run tests/integration/expenses-api-contract.test.ts`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 Type-check passes: `npx tsc --noEmit`
+- [x] 2.5 Bite check (validation): flipping a boundary operator makes a test fail
+- [x] 2.6 Bite check (disclosure): re-introducing `error.message` into a 500 body makes a test fail
 
 #### Manual
 
-- [ ] 2.7 Fake-client + context helper reads as reusable scaffolding
-- [ ] 2.8 No test imports `EXPENSE_CATEGORIES` or the handler regex (oracle independence)
+- [x] 2.7 Fake-client + context helper reads as reusable scaffolding
+- [x] 2.8 No test imports `EXPENSE_CATEGORIES` or the handler regex (oracle independence)
 
 ### Phase 3: Cookbook + wiring
 
