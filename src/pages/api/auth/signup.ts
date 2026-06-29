@@ -12,7 +12,15 @@ export const POST: APIRoute = async (context) => {
   if (!supabase) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
   }
-  const { error } = await supabase.auth.signUp({ email, password });
+  // Anchor the confirmation link to the origin the user actually signed up from
+  // (prod URL in prod, localhost in dev) instead of Supabase's single Site URL
+  // default. The target must also be present in the project's Redirect URLs
+  // allow-list, otherwise Supabase silently falls back to the Site URL.
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: new URL("/auth/signin", context.url.origin).toString() },
+  });
 
   if (error) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
