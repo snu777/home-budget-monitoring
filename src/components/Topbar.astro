@@ -2,36 +2,63 @@
 const { user } = Astro.locals;
 ---
 
-<div
-  class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
->
+<header class="mx-auto flex max-w-5xl items-center justify-between gap-3">
+  <a href="/" class="flex items-center gap-2.5" aria-label="Home Budget — strona główna">
+    <span class="flex size-9 items-center justify-center rounded-xl bg-emerald-600 shadow-lg shadow-emerald-600/20">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="size-5 text-white"
+        aria-hidden="true"
+      >
+        <path
+          d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"
+        ></path>
+        <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+      </svg>
+    </span>
+    <span class="text-base font-semibold text-white">Home Budget</span>
+  </a>
+
   {
     user ? (
-      <>
-        <span class="text-blue-100/70">{user.email}</span>
-        <div class="flex items-center gap-3">
-          <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Dashboard
-          </a>
-          <form method="POST" action="/api/auth/signout">
-            <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </>
+      <div class="flex items-center gap-3">
+        <span class="hidden text-sm text-slate-400 sm:inline">{user.email}</span>
+        <a
+          href="/dashboard"
+          class="rounded-lg bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+        >
+          Panel
+        </a>
+        <form method="POST" action="/api/auth/signout">
+          <button
+            type="submit"
+            class="cursor-pointer rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-sm text-slate-200 transition-colors hover:bg-slate-700"
+          >
+            Wyloguj
+          </button>
+        </form>
+      </div>
     ) : (
-      <>
-        <span class="text-blue-100/70">Not signed in</span>
-        <div class="flex gap-3">
-          <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign in
-          </a>
-          <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign up
-          </a>
-        </div>
-      </>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a
+          href="/auth/signin"
+          class="rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-sm text-slate-200 transition-colors hover:bg-slate-700"
+        >
+          Zaloguj się
+        </a>
+        <a
+          href="/auth/signup"
+          class="rounded-lg bg-emerald-600 px-3.5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+        >
+          Załóż konto
+        </a>
+      </div>
     )
   }
-</div>
+</header>
